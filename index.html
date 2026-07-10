@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&family=Pacifico&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="community.css">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -21,7 +22,7 @@
     </a>
     <button class="menu" id="menuButton" aria-expanded="false" aria-controls="nav">Menu</button>
     <nav id="nav" aria-label="Primary navigation">
-      <a href="#hub">The Hub</a><a href="#chapters">Chapters</a><a href="#academy">Academy</a><a href="#membership">Membership</a>
+      <a href="#hub">The Hub</a><a href="#herBible">HER Bible</a><a href="#chapters">Chapters</a><a href="#academy">Academy</a><a href="#membership">Membership</a>
     </nav>
     <a class="join-mini" href="#membership">Join PGWS <span>→</span></a>
   </header>
@@ -108,6 +109,14 @@
       </div>
     </div></section>
 
+    <section class="her-bible section" id="herBible"><div class="container">
+      <div class="bible-heading"><div><p class="eyebrow">THE HER BIBLE</p><h2>Her Word.<br><em>Her quiet place.</em></h2><p>A full, beautiful Bible reader for every season of becoming. Open a book, settle into a chapter, and meet God right where you are.</p></div><div class="bible-seal"><span>HER</span><b>BIBLE</b><small>WORD • WISDOM • WONDER</small></div></div>
+      <div class="bible-reader"><aside class="bible-sidebar"><p class="reader-label">OPEN THE BIBLE</p><label for="bibleBook">Book</label><select id="bibleBook" aria-label="Choose a Bible book"></select><label for="bibleChapter">Chapter</label><select id="bibleChapter" aria-label="Choose a Bible chapter"></select><button class="button button-dark" id="loadChapter">Open chapter <span>→</span></button><div class="bible-note"><span>✝</span><p>Complete World English Bible<br><small>Free to read • Public domain</small></p></div></aside><article class="scripture-reader"><div class="reader-top"><p id="scriptureReference">John 1</p><button class="save-verse" id="saveChapter" type="button">♡ Save this chapter</button></div><div id="scriptureText" aria-live="polite"><p class="scripture-loading">Opening the Word…</p></div><div class="reader-bottom"><button id="previousChapter" type="button">← Previous</button><span>Read slowly, sister.</span><button id="nextChapter" type="button">Next →</button></div></article></div>
+      <div class="bible-topic-row"><span>READ BY WHAT YOU NEED TODAY</span><button data-bible-topic="Identity">Identity</button><button data-bible-topic="Confidence">Confidence</button><button data-bible-topic="Peace">Peace</button><button data-bible-topic="Purpose">Purpose</button><button data-bible-topic="Friendship">Friendship</button></div>
+    </div></section>
+
+    <section class="sister-circle section" id="sisterCircle"><div class="container"><div class="circle-heading"><div><p class="eyebrow">THE SISTER CIRCLE</p><h2>Read it.<br><em>Talk about it.</em></h2><p>Every chapter can become a soft place to ask, reflect, pray, and encourage another woman. The wall is public to read; posting is protected for signed-in sisters.</p></div><a class="button button-dark" href="https://groupme.com/join_group/110864817/dkv2gcgA" target="_blank" rel="noopener">Join the national chat <span>→</span></a></div><div class="circle-grid"><article class="conversation-card"><div class="circle-card-top"><span class="pink-dot"></span><p>CHAPTER CONVERSATION</p><small id="conversationReference">John 1</small></div><h3>What stood out to you?</h3><p class="conversation-prompt" id="conversationPrompt">“The light shines in the darkness.” Where do you need light or clarity right now?</p><div class="sample-comments"><p><b>Amaya</b> <span>“This reminded me I do not have to have it all figured out to keep walking.”</span></p><p><b>Faith</b> <span>“I’m choosing to bring my worries into the light instead of holding them alone.”</span></p></div><button class="soft-button" id="openReflection" type="button">Share your reflection ♡</button></article><article class="wall-card"><p class="eyebrow">THE SISTER WALL</p><h3>Her light looks good here.</h3><p>Wins, testimonies, kindness, service, and little reminders that a girl somewhere else is becoming too.</p><div class="wall-post"><span>✦</span><p>“I went to class even when anxiety said stay home. Proud of me.”</p><small>— a PGWS sister</small></div><div class="wall-post warm"><span>♡</span><p>“I finally stopped calling myself names. God is teaching me to speak gently to her.”</p><small>— a PGWS sister</small></div><button class="soft-button" id="openWallPost" type="button">Add your light →</button></article><article class="gallery-card"><p class="eyebrow">SISTER SNAPSHOTS</p><h3>Beautiful things we did together.</h3><div class="photo-mosaic"><span>serve</span><span>pray</span><span>gather</span><span>grow</span></div><p>Share chapter brunches, service days, prayer nights, and sisterhood moments for approval.</p><button class="soft-button" id="openPhotoShare" type="button">Share a photo →</button></article></div><p class="community-safety">♡ Community care: posts and photos are reviewed before appearing. Never share private contact details, your location, or anyone’s photo without permission.</p></div></section>
+
     <section class="her-quiz section" id="quiz"><div class="container quiz-layout"><div><p class="eyebrow">TAKE A HER QUIZ</p><h2>What kind of<br><em>pretty leader</em><br>are you?</h2><p>A light, faith-and-purpose quiz to reveal the way you naturally show up for people.</p><div class="quiz-progress"><i id="quizFill"></i></div><p class="quiz-count" id="quizCount">Question 1 of 3</p></div>
       <article class="quiz-card"><p class="quiz-question" id="quizQuestion">When a friend is having a hard week, your first instinct is to…</p><div class="quiz-options" id="quizOptions"></div><div class="quiz-result" id="quizResult" hidden><span>✦</span><p class="eyebrow">YOUR PRETTY LEADERSHIP GIFT</p><h3 id="resultTitle"></h3><p id="resultText"></p><button class="button button-dark" id="restartQuiz">Take it again →</button></div></article></div></section>
 
@@ -119,6 +128,7 @@
         <button class="module" data-module="2"><b>03</b><span><strong>Responsible</strong><small>Discipline, money &amp; stewardship</small></span><i>→</i></button>
         <button class="module" data-module="3"><b>04</b><span><strong>Radiant</strong><small>Beauty, wellness &amp; self-care</small></span><i>→</i></button>
         <button class="module" data-module="4"><b>05</b><span><strong>Ready</strong><small>Leadership, calling &amp; service</small></span><i>→</i></button>
+        <button class="module" data-module="5"><b>06</b><span><strong>Her Life</strong><small>Stewardship, wellness &amp; wholeness</small></span><i>→</i></button>
       </div>
       <article class="lesson-card"><p class="lesson-label">CURRENT LESSON</p><p class="lesson-number" id="lessonNumber">01</p><h3 id="lessonTitle">Rooted: your worth is not up for debate.</h3><p id="lessonText">A soft but strong reset for the way you see yourself. Learn to ground your confidence in who God says you are—not comparison, attention, or perfection.</p><div class="progress"><span><i></i></span><small id="lessonProgress">1 of 5 modules</small></div><button class="button button-light" data-modal="academy">Preview the lesson <span>→</span></button></article></div>
     </div></section>
@@ -134,5 +144,6 @@
 
   <dialog id="portalModal"><button class="close" aria-label="Close">×</button><p class="eyebrow" id="modalEyebrow">PGWS PORTAL</p><h2 id="modalTitle">Coming beautifully soon.</h2><p id="modalText">This room is being prepared for the sisterhood.</p><a class="button button-dark" href="#membership" id="modalButton">Join the waitlist →</a></dialog>
   <script src="app.js"></script>
+  <script src="community.js"></script>
 </body>
 </html>

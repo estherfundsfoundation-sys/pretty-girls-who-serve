@@ -2,11 +2,12 @@ const $=(selector,scope=document)=>scope.querySelector(selector);
 const $$=(selector,scope=document)=>[...scope.querySelectorAll(selector)];
 
 const lessons=[
-  ['01','Rooted: your worth is not up for debate.','A soft but strong reset for the way you see yourself. Learn to ground your confidence in who God says you are—not comparison, attention, or perfection.'],
-  ['02','Refined: wisdom is your real glow.','Practice the kind of wisdom that protects your peace, shapes your words, and helps you build healthy relationships.'],
-  ['03','Responsible: steward your pretty life well.','Build discipline around your time, money, goals, and commitments without losing softness or joy.'],
-  ['04','Radiant: care for the woman you are becoming.','Explore wellness, self-care, presentation, and routines as acts of gratitude—not pressure.'],
-  ['05','Ready: lead with your whole heart.','Turn your gifts into action through service, leadership, confidence, and purpose-driven impact.']
+  ['01','Her Identity: your worth is not up for debate.','Week one is a soft but strong reset for the way you see yourself. Your confidence is rooted in what God says—not comparison, attention, or perfection.'],
+  ['02','Her Mindset: renew the way you speak to yourself.','Week two helps you notice comparison, build confidence, and grow a thought-life that agrees with truth.'],
+  ['03','Her Faith: create a rhythm with God.','Week three makes prayer, Scripture, and faith habits practical for your real and beautiful everyday life.'],
+  ['04','Her Character: wisdom protects her peace.','Week four is about boundaries, integrity, relationships, discipline, and choosing wisdom in real life.'],
+  ['05','Her Calling: turn gifts into service.','Week five connects leadership, impact, and your God-given gifts to the people and places you are called to serve.'],
+  ['06','Her Life: build a life that honors God.','Week six brings it together: stewardship, wellness, relationships, rest, money, and a future built with purpose.']
 ];
 
 const modalContent={
@@ -38,8 +39,8 @@ $$('.module').forEach(button=>button.addEventListener('click',()=>{
   const lesson=lessons[Number(button.dataset.module)];
   $$('.module').forEach(item=>item.classList.remove('active'));button.classList.add('active');
   $('#lessonNumber').textContent=lesson[0];$('#lessonTitle').textContent=lesson[1];$('#lessonText').textContent=lesson[2];
-  $('#lessonProgress').textContent=`${Number(button.dataset.module)+1} of 5 modules`;
-  $('.progress i').style.width=`${(Number(button.dataset.module)+1)*20}%`;
+  $('#lessonProgress').textContent=`Week ${Number(button.dataset.module)+1} of 6`;
+  $('.progress i').style.width=`${(Number(button.dataset.module)+1)*16.66}%`;
 }));
 
 $('#menuButton').addEventListener('click',()=>{
