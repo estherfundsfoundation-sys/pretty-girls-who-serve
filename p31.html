@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The secure MyPGWS P31 member portal for Pretty Girls Who Serve.">
+  <title>P31 Portal | Pretty Girls Who Serve</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&family=Pacifico&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/p31.css">
+</head>
+<body>
+  <a class="skip" href="#portalMain">Skip to portal content</a>
+  <header class="p31-header">
+    <a class="p31-brand" href="/"><span>PG</span><b>PRETTY GIRLS <i>who serve</i></b></a>
+    <div class="product-switcher">
+      <button id="productSwitcher" type="button" aria-expanded="false">P31 Portal <span>⌄</span></button>
+      <div id="productMenu" hidden>
+        <a href="/p31"><b>MyPGWS</b><small>Your P31 member home</small></a>
+        <a href="/"><b>PGWS Website</b><small>Public sisterhood site</small></a>
+        <a href="https://my.estherfundsfoundation.org"><b>MyEFF</b><small>Included EFF national membership</small></a>
+        <a href="https://portal.estherfundsfoundation.org"><b>EFF Portal</b><small>Scholarships and student help</small></a>
+      </div>
+    </div>
+    <div class="p31-account" id="accountBar" hidden><span id="accountEmail"></span><button id="signOut" type="button">Sign out</button></div>
+  </header>
+
+  <main id="portalMain">
+    <section class="portal-loading" id="portalLoading">
+      <div class="mirror-loader"><span>✦</span></div>
+      <p>Preparing your P31 Portal…</p>
+    </section>
+
+    <section class="auth-shell" id="authShell" hidden>
+      <div class="auth-story">
+        <p class="eyebrow">MYPGWS · P31 PORTAL</p>
+        <h1>Your sisterhood.<br><em>Your becoming.</em><br>Your impact.</h1>
+        <p>One beautiful, secure home for PGWS membership, faith, leadership, service, chapters, opportunities, and your included EFF national membership.</p>
+        <div class="auth-promises"><span>♡ Lifetime PGWS membership</span><span>✦ Private member profile</span><span>♡ Included MyEFF access</span></div>
+      </div>
+      <div class="auth-card">
+        <p class="eyebrow">SISTER SIGN-IN</p>
+        <h2>Come on in.</h2>
+        <p>Use your PGWS account. Existing Her Return and community accounts work here too.</p>
+        <form id="authForm">
+          <label>Email address<input id="authEmail" type="email" autocomplete="email" required></label>
+          <label>Password<input id="authPassword" type="password" minlength="8" autocomplete="current-password" required></label>
+          <button class="primary-button" type="submit">Sign in to P31 →</button>
+        </form>
+        <div class="auth-alternatives"><button id="createAccount" type="button">Create my PGWS account</button><button id="forgotPassword" type="button">Forgot password?</button></div>
+        <p class="form-message" id="authMessage" aria-live="polite"></p>
+        <small>Never email your password or verification code to PGWS or EFF.</small>
+      </div>
+    </section>
+
+    <section class="membership-gate" id="membershipGate" hidden>
+      <div class="gate-copy">
+        <p class="eyebrow">YOUR ACCOUNT IS READY</p>
+        <h1>Now make it<br><em>official.</em></h1>
+        <p>Your account keeps Her Return and community features connected. Verified lifetime membership unlocks the full P31 Portal.</p>
+        <div class="gate-benefits" id="gateBenefits"></div>
+        <a class="quiet-link" href="/#herJournal">Return to my private Her Return journal</a>
+      </div>
+      <aside class="gate-card">
+        <p class="eyebrow">PGWS LIFETIME MEMBERSHIP</p>
+        <strong>$20</strong><span>one time · no recurring PGWS national dues</span>
+        <p>Includes P31 Portal access and free EFF national membership through MyEFF.</p>
+        <button class="primary-button" id="startCheckout" type="button">Join securely for $20 →</button>
+        <button class="secondary-button" id="checkPayment" type="button" hidden>I completed checkout — check my access</button>
+        <div class="legacy-claim" id="legacyClaim" hidden>
+          <b>Already paid through Join It?</b>
+          <p>We found a paid legacy record matching this verified email. Claim it without paying again.</p>
+          <button id="claimLegacy" type="button">Claim my existing membership →</button>
+        </div>
+        <div class="legacy-review" id="legacyReview" hidden>
+          <b>Your legacy record needs a quick match.</b>
+          <p>More than one record may use this email. PGWS Nationals can reconcile it without another payment.</p>
+        </div>
+        <p class="form-message" id="gateMessage" aria-live="polite"></p>
+        <small>Portal access activates only after Stripe securely confirms payment or a verified legacy/complimentary record is matched.</small>
+      </aside>
+    </section>
+
+    <section class="portal-shell" id="portalShell" hidden>
+      <aside class="portal-sidebar">
+        <div class="member-mini"><div id="miniInitials">PG</div><p>WELCOME HOME</p><strong id="miniName">PGWS Sister</strong><small id="miniMemberId">Membership loading</small></div>
+        <nav id="portalNav" aria-label="P31 Portal">
+          <button class="active" data-panel="home">♡ My home</button>
+          <button data-panel="membership">✦ Membership</button>
+          <button data-panel="profile">♡ My profile</button>
+          <button data-panel="becoming">✦ My Becoming</button>
+          <button data-panel="sisterhood">♡ Sisterhood</button>
+          <button data-panel="faith">✝ Faith + Her Return</button>
+          <button data-panel="service">♡ Service + impact</button>
+          <button data-panel="events">✦ Events</button>
+          <button data-panel="resources">♡ Pretty Vault</button>
+          <button data-panel="opportunities">✦ Opportunities</button>
+          <button data-panel="support">♡ Ask for help</button>
+        </nav>
+        <a class="myeff-switch" id="sidebarMyEff" href="https://my.estherfundsfoundation.org">Switch to MyEFF →</a>
+        <a class="admin-switch" id="adminSwitch" href="/pgws-admin" hidden>PGWS Nationals administration →</a>
+      </aside>
+
+      <div class="portal-content">
+        <section class="portal-panel active" data-panel-content="home">
+          <div class="welcome-home">
+            <div><p class="eyebrow">MYPGWS · WELCOME HOME</p><h1>Hey, <span id="welcomeName">sister</span>.</h1><p>Your faith, sisterhood, purpose, service, and next steps are gathered here.</p></div>
+            <div class="today-action"><small>TODAY'S PRETTY ACTION</small><b>Send one honest “How are you really?” text.</b><span>5 minutes · sisterhood</span></div>
+          </div>
+          <div class="home-grid">
+            <article class="status-card"><p class="eyebrow">MEMBERSHIP STATUS</p><h2 id="statusHeading">Active lifetime member</h2><div class="status-list"><span><b>PGWS</b><i id="pgwsStatus">Active</i></span><span><b>MyEFF</b><i id="myeffStatus">Activation ready</i></span><span><b>Chapter</b><i id="chapterStatus">National sister</i></span></div><button data-go-panel="membership">View membership details →</button></article>
+            <article class="next-card"><p class="eyebrow">WHAT YOU SHOULD DO NEXT</p><ol id="nextSteps"></ol></article>
+            <article class="impact-card"><p class="eyebrow">MY IMPACT</p><strong id="serviceHours">0</strong><span>approved service hours</span><button data-go-panel="service">Record service →</button></article>
+            <article class="pulse-card"><p class="eyebrow">SISTERHOOD PULSE</p><h2>Stay close to the circle.</h2><p>See national updates, chapter moments, prayer, and sisterhood opportunities.</p><button data-go-panel="sisterhood">Enter Sisterhood →</button></article>
+          </div>
+          <div class="section-heading"><div><p class="eyebrow">UPCOMING</p><h2>Do not miss your moment.</h2></div><button data-go-panel="events">All events →</button></div>
+          <div class="portal-cards" id="homeEvents"></div>
+          <div class="section-heading"><div><p class="eyebrow">NATIONAL + CHAPTER</p><h2>Announcements</h2></div></div>
+          <div class="announcement-list" id="homeAnnouncements"></div>
+        </section>
+
+        <section class="portal-panel" data-panel-content="membership">
+          <div class="section-heading"><div><p class="eyebrow">OFFICIAL PGWS MEMBER</p><h1>Your membership.</h1><p>PGWS and MyEFF are connected benefits with separate records, IDs, roles, and brands.</p></div><button id="printCard" type="button">Print member card</button></div>
+          <article class="digital-card" id="digitalCard"><div class="card-spark">✦</div><p>PRETTY GIRLS WHO SERVE</p><h2 id="cardName">PGWS Sister</h2><span>LIFETIME MEMBER</span><footer><b id="cardMemberId">PGWS-</b><i>Faith · Purpose · Sisterhood · Service</i></footer></article>
+          <div class="membership-details">
+            <article><small>PGWS STATUS</small><b id="membershipStatusDetail">Active</b><span id="membershipSourceDetail">Verified membership</span></article>
+            <article><small>MEMBER SINCE</small><b id="memberSince">—</b><span>Lifetime PGWS membership</span></article>
+            <article><small>MYEFF ACCESS</small><b id="myeffDetail">Activation ready</b><a id="activateMyEff" href="https://my.estherfundsfoundation.org">Connect MyEFF →</a></article>
+          </div>
+          <div class="privacy-callout"><b>Two memberships. One connected mission.</b><p>Your PGWS journal, prayer records, community moderation, and private sisterhood data are never copied into MyEFF. Your MyEFF password is separate and is never stored by PGWS.</p></div>
+        </section>
+
+        <section class="portal-panel" data-panel-content="profile">
+          <div class="section-heading"><div><p class="eyebrow">MY PRIVATE + DIRECTORY PROFILE</p><h1>Let sisters know you.</h1><p>Your email and private account information never appear in the public directory.</p></div></div>
+          <form class="portal-form" id="profileForm">
+            <label>First name or sister name<input id="profileName" maxlength="50" required></label>
+            <label>City and state <span>optional</span><input id="profileCity" maxlength="100"></label>
+            <label>Chapter or PGWS group <span>optional</span><input id="profileChapter" maxlength="100"></label>
+            <label class="wide">About you <span>optional</span><textarea id="profileBio" maxlength="500"></textarea></label>
+            <label class="wide">Interests and service passions <span>separate with commas</span><input id="profileInterests" maxlength="500"></label>
+            <label class="wide checkbox-label"><input id="profileVisible" type="checkbox"> <span>Show my chosen profile details in the PGWS Sister Directory.</span></label>
+            <button class="primary-button" type="submit">Save my profile →</button>
+            <p class="form-message" id="profileMessage"></p>
+          </form>
+        </section>
+
+        <section class="portal-panel" data-panel-content="becoming">
+          <div class="section-heading"><div><p class="eyebrow">MY BECOMING</p><h1>Grow with grace and structure.</h1><p>Onboarding is your path into PGWS faith, culture, safety, leadership, service, and sisterhood.</p></div></div>
+          <div class="becoming-track" id="becomingTrack"></div>
+          <div class="pretty-promise"><span>♡</span><h2>You are not behind.</h2><p>Choose one faithful next step. Becoming is not a race, and PGWS membership does not require pretending.</p></div>
+        </section>
+
+        <section class="portal-panel" data-panel-content="sisterhood">
+          <div class="section-heading"><div><p class="eyebrow">SISTERHOOD</p><h1>You belong in the circle.</h1><p>Community stays kind, consent-based, moderated, and sister-safe.</p></div></div>
+          <div class="portal-cards three">
+            <article><span>♡</span><h2>Sister Directory</h2><p>Meet opted-in women by chapter, city, and interests.</p><a href="/#memberPortal">Open the directory →</a></article>
+            <article><span>✦</span><h2>Sister Lounge</h2><p>Share encouragement, prayer, wins, and questions with signed-in sisters.</p><a href="/#memberPortal">Enter the lounge →</a></article>
+            <article><span>♡</span><h2>National group chat</h2><p>Receive quick sisterhood updates and connect with women across the movement.</p><a href="https://groupme.com/join_group/110864817/dkv2gcgA">Join GroupMe →</a></article>
+          </div>
+          <div class="privacy-callout"><b>Sisterhood is not secrecy.</b><p>Do not post private contact details, locations, passwords, financial records, confidential stories, or anyone's photo without permission. Report unsafe behavior to PGWS Nationals.</p></div>
+        </section>
+
+        <section class="portal-panel" data-panel-content="faith">
+          <div class="section-heading"><div><p class="eyebrow">FAITH + HER RETURN</p><h1>Come back without pretending.</h1><p>Private spiritual reflection, deep Bible study, prayer, and practical becoming.</p></div></div>
+          <div class="faith-grid">
+            <article class="faith-feature"><span>✝</span><h2>Her Return</h2><p>Your 45-day in-depth Bible-study journal remains encrypted on your device before it is saved. Nationals cannot read it.</p><a href="/#herJournal">Continue Her Return →</a></article>
+            <article><span>✦</span><h2>HER Bible</h2><p>Read the complete World English Bible and save chapters in your browser.</p><a href="/#herBible">Open HER Bible →</a></article>
+            <article><span>♡</span><h2>Prayer + care</h2><p>Ask for prayer only when you choose. Private journal pages never become prayer requests.</p><a href="/#ministry">Open the ministry room →</a></article>
+          </div>
+          <p class="safety-note">Faith support is not a replacement for licensed mental-health, medical, legal, or emergency care. In immediate danger, call 911. In a mental-health crisis, call or text 988.</p>
+        </section>
+
+        <section class="portal-panel" data-panel-content="service">
+          <div class="section-heading"><div><p class="eyebrow">SERVICE + IMPACT</p><h1>Make purpose visible.</h1><p>Submit real service. PGWS Nationals reviews documentation before hours become officially approved.</p></div></div>
+          <form class="portal-form" id="serviceForm">
+            <label>Organization served<input id="serviceOrganization" maxlength="180" required></label>
+            <label>Service date<input id="serviceDate" type="date" required></label>
+            <label>Hours<input id="serviceEntryHours" type="number" min=".25" max="500" step=".25" required></label>
+            <label>Verification contact email <span>optional</span><input id="serviceVerifierEmail" type="email" maxlength="254"></label>
+            <label class="wide">What did you do and who did it help?<textarea id="serviceDescription" maxlength="2000" required></textarea></label>
+            <button class="primary-button" type="submit">Submit service for review →</button>
+            <p class="form-message" id="serviceMessage"></p>
+          </form>
+          <div class="section-heading small"><div><p class="eyebrow">MY SERVICE RECORD</p><h2>Submitted and approved hours</h2></div></div>
+          <div class="record-list" id="serviceList"></div>
+        </section>
+
+        <section class="portal-panel" data-panel-content="events">
+          <div class="section-heading"><div><p class="eyebrow">NATIONAL + CHAPTER EVENTS</p><h1>Show up for your becoming.</h1><p>Gatherings, service days, faith nights, leadership sessions, and sisterhood moments.</p></div></div>
+          <div class="portal-cards" id="eventsList"></div>
+        </section>
+
+        <section class="portal-panel" data-panel-content="resources">
+          <div class="section-heading"><div><p class="eyebrow">THE PRETTY VAULT</p><h1>Useful, organized, ready.</h1><p>Faith, leadership, student support, chapter, service, and sisterhood resources in one place.</p></div></div>
+          <div class="resource-filter" id="resourceFilter"></div>
+          <div class="portal-cards three" id="resourceList"></div>
+        </section>
+
+        <section class="portal-panel" data-panel-content="opportunities">
+          <div class="section-heading"><div><p class="eyebrow">OPPORTUNITIES FOR YOU</p><h1>Know what is open.</h1><p>Leadership, service, academy, chapter, ambassador, scholarship, and national opportunities.</p></div></div>
+          <div class="portal-cards" id="opportunityList"></div>
+        </section>
+
+        <section class="portal-panel" data-panel-content="support">
+          <div class="section-heading"><div><p class="eyebrow">ASK PGWS NATIONALS</p><h1>Let us help you find the next step.</h1><p>Use this secure form for membership, payment, chapter, service, event, community, academy, faith, or MyEFF access questions.</p></div></div>
+          <form class="portal-form" id="supportForm">
+            <label>Category<select id="supportCategory" required><option value="account">Account</option><option value="membership">Membership</option><option value="payment">Payment</option><option value="chapter">Chapter</option><option value="event">Event</option><option value="service">Service</option><option value="community">Community</option><option value="faith">Faith</option><option value="academy">Academy</option><option value="myeff">MyEFF access</option><option value="other">Other</option></select></label>
+            <label>Subject<input id="supportSubject" maxlength="160" required></label>
+            <label class="wide">What happened, and what result do you need?<textarea id="supportMessage" maxlength="5000" required></textarea></label>
+            <button class="primary-button" type="submit">Send secure request →</button>
+            <p class="form-message" id="supportFormMessage"></p>
+          </form>
+          <div class="section-heading small"><div><p class="eyebrow">MY REQUESTS</p><h2>Status and follow-through</h2></div></div>
+          <div class="record-list" id="supportList"></div>
+          <p class="safety-note">Do not upload or send Social Security numbers, passwords, verification codes, tax returns, or full financial account details.</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/community-config.js"></script>
+  <script src="/p31.js"></script>
+</body>
+</html>
+
