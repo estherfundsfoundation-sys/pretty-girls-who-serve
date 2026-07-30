@@ -20,16 +20,19 @@ export default async function handler(req, res) {
       dbSelect("pgws_profiles", `select=*&id=eq.${encodeURIComponent(user.id)}&limit=1`),
       dbSelect(
         "pgws_legacy_members",
-        `select=id,source_member_id,first_name,last_name,membership_type,joined_at,chapter_name,validation_status&email_key=eq.${encodeURIComponent(user.email)}&paid_status=in.(paid,complimentary)&claimed_by=is.null&limit=2`,
+        `select=id,source_member_id,first_name,last_name,membership_type,joined_at,chapter_name,validation_status&email_key=eq.${encodeURIComponent(user.email)}&paid_status=in.(paid,complimentary)&validation_status=in.(valid,pending)&claimed_by=is.null&limit=2`,
       ),
       dbSelect("pgws_membership_plans", "select=code,public_name,description,amount_cents,currency,benefits&code=eq.lifetime-2026&active=eq.true&limit=1"),
       isAdmin(user),
     ]);
 
+    const displayName = first(profileRows)?.display_name
+      || user.raw?.user_metadata?.display_name
+      || user.email.split("@")[0];
     const active = membership?.status === "active" && ["paid", "not_required"].includes(membership.payment_status);
     if (!active) {
       return json(res, 200, {
-        user: { id: user.id, email: user.email },
+        user: { id: user.id, email: user.email, displayName },
         profile: first(profileRows),
         membership,
         plan: first(planRows),
@@ -71,16 +74,24 @@ export default async function handler(req, res) {
       dbSelect("pgws_support_requests", `select=id,category,subject,message,status,priority,resolution_notes,created_at,updated_at&user_id=eq.${encodeURIComponent(user.id)}&order=created_at.desc&limit=20`),
     ]);
 
-    const myEff = await ensureMyEffActivation({
-      user,
-      membership,
-      appUrl: publicOrigin(req),
-    });
+    let myEff;
+    try {
+      myEff = await ensureMyEffActivation({
+        user,
+        membership,
+        appUrl: publicOrigin(req),
+      });
+    } catch {
+      myEff = {
+        connection: first(myEffRows) || { status: "needs_review" },
+        url: process.env.MYEFF_PUBLIC_URL || "https://my.estherfundsfoundation.org",
+      };
+    }
     const approvedHours = (serviceEntries || [])
       .filter((entry) => entry.status === "approved")
       .reduce((sum, entry) => sum + Number(entry.hours || 0), 0);
     return json(res, 200, {
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, displayName },
       profile: first(profileRows),
       membership,
       plan: first(planRows),

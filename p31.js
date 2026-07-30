@@ -10,6 +10,9 @@
   const dateTime = (value) => value ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : "Date TBA";
   let portal = null;
   let session = null;
+  let authIntent = null;
+  let legacyClaimInFlight = false;
+  const validPanels = new Set(["home", "membership", "profile", "becoming", "sisterhood", "faith", "service", "events", "resources", "opportunities", "support"]);
 
   async function accessToken() {
     const { data } = await client.auth.getSession();
@@ -50,18 +53,58 @@
     if (session) text("accountEmail", session.user.email);
   }
 
+  function memberName(data = portal) {
+    const value = data?.profile?.display_name
+      || data?.user?.displayName
+      || session?.user?.user_metadata?.display_name
+      || session?.user?.email?.split("@")[0]
+      || "Sister";
+    return String(value).trim() || "Sister";
+  }
+
+  function setAuthIntent(intent) {
+    authIntent = intent;
+    show("authChoice", !intent);
+    show("authForm", Boolean(intent));
+    if (!intent) {
+      message("authMessage", "");
+      return;
+    }
+    const joining = intent === "join";
+    text("authEyebrow", joining ? "BECOME A PGWS MEMBER" : "SISTER SIGN-IN");
+    text("authTitle", joining ? "Start your membership." : "Welcome back.");
+    text("authInstructions", joining
+      ? "Create one PGWS account. After that, secure checkout will open and return you directly to your portal."
+      : "Use the email connected to your PGWS account or previous paid membership.");
+    show("authNameField", joining);
+    $("authName").required = joining;
+    $("authPassword").autocomplete = joining ? "new-password" : "current-password";
+    text("authSubmit", joining ? "Create My Account →" : "Sign In to P31 →");
+    text("emailSignInLink", joining ? "Create my account by secure email link" : "Email me a secure sign-in link");
+    show("forgotPassword", !joining);
+    message("authMessage", "");
+  }
+
   function renderGate(data) {
     portal = data;
     setView("gate");
     const benefits = data.plan?.benefits || [];
+    text("gateWelcomeName", `${memberName(data).split(/\s+/)[0]}.`);
     $("gateBenefits").innerHTML = benefits.map((benefit) => `<span>♡ ${escape(benefit)}</span>`).join("");
     show("legacyClaim", Boolean(data.legacy?.claimAvailable));
     show("legacyReview", Boolean(data.legacy?.needsReview));
-    $("startCheckout").disabled = !data.checkoutReady;
-    if (!data.checkoutReady) {
-      message("gateMessage", "Secure $20 checkout is being connected. Existing paid members can still claim a matched legacy record.", true);
-    } else if (new URLSearchParams(location.search).get("checkout") === "cancelled") {
-      message("gateMessage", "Checkout was cancelled. No membership was activated and you were not charged here.");
+    $("startCheckout").disabled = !data.checkoutReady || Boolean(data.legacy?.claimAvailable);
+    const checkoutState = new URLSearchParams(location.search).get("checkout");
+    if (data.legacy?.claimAvailable) {
+      message("gateMessage", "We found your previous paid membership and are connecting it now. Please stay on this page.");
+    } else if (!data.checkoutReady) {
+      message("gateMessage", "Secure checkout is temporarily unavailable. Please try again shortly.", true);
+    } else if (checkoutState === "cancelled") {
+      message("gateMessage", "Checkout was cancelled. You were not charged and may continue whenever you are ready.");
+    } else if (checkoutState === "success") {
+      message("gateMessage", "Payment received. We are opening your P31 Portal now.");
+    } else {
+      message("gateMessage", "One secure $20 payment unlocks your lifetime P31 membership. Checkout opens separately while this page confirms your access automatically.");
     }
   }
 
@@ -73,7 +116,7 @@
     portal = data;
     setView("portal");
     const profile = data.profile || {};
-    const displayName = profile.display_name || session?.user?.email?.split("@")[0] || "sister";
+    const displayName = profile.display_name || data.user?.displayName || session?.user?.email?.split("@")[0] || "sister";
     text("welcomeName", displayName.split(" ")[0]);
     text("miniName", displayName);
     text("miniInitials", initials(displayName));
@@ -118,6 +161,8 @@
     renderResources(data.resources || []);
     renderOpportunities(data.opportunities || []);
     renderSupport(data.supportRequests || []);
+    const requestedPanel = new URLSearchParams(location.search).get("panel");
+    if (validPanels.has(requestedPanel)) switchPanel(requestedPanel);
   }
 
   function renderBecoming(progress) {
@@ -156,11 +201,29 @@
   async function loadPortal({ poll = false } = {}) {
     setView("loading");
     try {
-      const data = await api("/api/pgws/me");
-      if (data.portalAccess) renderPortal(data);
-      else if (poll) {
-        for (let attempt = 0; attempt < 9; attempt += 1) {
-          await new Promise((resolve) => setTimeout(resolve, 1800));
+      let data = await api("/api/pgws/me");
+      if (!data.portalAccess && data.legacy?.claimAvailable && !legacyClaimInFlight) {
+        legacyClaimInFlight = true;
+        renderGate(data);
+        try {
+          await api("/api/pgws/legacy-claim", { method: "POST" });
+          data = await api("/api/pgws/me");
+        } catch (error) {
+          renderGate(data);
+          show("legacyClaim", true);
+          message("gateMessage", `${error.message} Choose “Reconnect my existing membership” to try again.`, true);
+          return;
+        } finally {
+          legacyClaimInFlight = false;
+        }
+      }
+      if (data.portalAccess) {
+        const panel = new URLSearchParams(location.search).get("panel");
+        history.replaceState({}, "", panel && validPanels.has(panel) ? `/p31?panel=${encodeURIComponent(panel)}` : "/p31");
+        renderPortal(data);
+      } else if (poll) {
+        for (let attempt = 0; attempt < 15; attempt += 1) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
           const refreshed = await api("/api/pgws/me");
           if (refreshed.portalAccess) {
             history.replaceState({}, "", "/p31");
@@ -169,12 +232,16 @@
           }
         }
         renderGate(data);
-        message("gateMessage", "Stripe is still confirming your payment. Refresh shortly; visiting this page never creates a duplicate charge.", true);
+        show("checkPayment", true);
+        message("gateMessage", "Stripe is still confirming your payment. Choose “Check my payment again” in a moment; you will never be charged twice from this screen.", true);
       } else renderGate(data);
     } catch (error) {
-      if (error.status === 401) setView("auth");
-      else {
+      if (error.status === 401) {
         setView("auth");
+        setAuthIntent(new URLSearchParams(location.search).get("intent") === "join" ? "join" : null);
+      } else {
+        setView("auth");
+        setAuthIntent(null);
         message("authMessage", error.message, true);
       }
     }
@@ -185,19 +252,57 @@
     menu.hidden = !menu.hidden;
     $("productSwitcher").setAttribute("aria-expanded", String(!menu.hidden));
   });
+  $("chooseJoin").addEventListener("click", () => setAuthIntent("join"));
+  $("chooseSignIn").addEventListener("click", () => setAuthIntent("signin"));
+  $("backToChoice").addEventListener("click", () => setAuthIntent(null));
   $("authForm").addEventListener("submit", async (event) => {
     event.preventDefault();
-    message("authMessage", "Signing you in…");
-    const { error } = await client.auth.signInWithPassword({ email: $("authEmail").value.trim(), password: $("authPassword").value });
-    if (error) return message("authMessage", error.message, true);
-    await loadPortal();
-  });
-  $("createAccount").addEventListener("click", async () => {
     const email = $("authEmail").value.trim();
     const password = $("authPassword").value;
     if (!email || password.length < 8) return message("authMessage", "Enter your email and a password with at least 8 characters.", true);
-    const { error } = await client.auth.signUp({ email, password, options: { emailRedirectTo: `${location.origin}/p31` } });
-    message("authMessage", error?.message || "Check your email to verify your PGWS account, then return to P31.", Boolean(error));
+    if (authIntent === "join") {
+      const displayName = $("authName").value.trim();
+      if (!displayName) return message("authMessage", "Tell us the first name you would like PGWS to use when welcoming you.", true);
+      message("authMessage", "Creating your PGWS account…");
+      const { data, error } = await client.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${location.origin}/p31?intent=join`,
+          data: { display_name: displayName },
+        },
+      });
+      if (error) return message("authMessage", error.message, true);
+      if (data.session) {
+        session = data.session;
+        await loadPortal();
+      } else {
+        message("authMessage", "Your account is ready. Check your email once to verify it, then the link will bring you directly back to membership checkout.");
+      }
+      return;
+    }
+    message("authMessage", "Signing you in…");
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
+    if (error) return message("authMessage", `${error.message} You may also use the secure email-link option below.`, true);
+    session = data.session;
+    await loadPortal();
+  });
+  $("emailSignInLink").addEventListener("click", async () => {
+    const email = $("authEmail").value.trim();
+    if (!email) return message("authMessage", "Enter your email first.", true);
+    const joining = authIntent === "join";
+    const displayName = $("authName").value.trim();
+    if (joining && !displayName) return message("authMessage", "Enter the first name you would like PGWS to use.", true);
+    message("authMessage", "Sending your secure PGWS access link…");
+    const { error } = await client.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: joining,
+        emailRedirectTo: `${location.origin}/p31${joining ? "?intent=join" : ""}`,
+        data: joining ? { display_name: displayName } : undefined,
+      },
+    });
+    message("authMessage", error?.message || "Check your email and open the secure link. It will return you directly to P31.", Boolean(error));
   });
   $("forgotPassword").addEventListener("click", async () => {
     const email = $("authEmail").value.trim();
@@ -205,22 +310,42 @@
     const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/p31` });
     message("authMessage", error?.message || "Check your email for the secure password-reset link.", Boolean(error));
   });
-  $("signOut").addEventListener("click", async () => { await client.auth.signOut(); portal = null; session = null; setView("auth"); });
+  $("signOut").addEventListener("click", async () => { await client.auth.signOut(); portal = null; session = null; setView("auth"); setAuthIntent(null); });
+  async function waitForPayment(checkoutWindow) {
+    for (let attempt = 0; attempt < 90; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const refreshed = await api("/api/pgws/me");
+      if (refreshed.portalAccess) {
+        if (checkoutWindow && !checkoutWindow.closed) checkoutWindow.close();
+        history.replaceState({}, "", "/p31");
+        renderPortal(refreshed);
+        return;
+      }
+    }
+    renderGate(portal);
+    show("checkPayment", true);
+    message("gateMessage", "Your checkout tab may still be open. After Stripe confirms payment, choose “Check my payment again.” You will not be charged twice.", true);
+  }
+
   $("startCheckout").addEventListener("click", async () => {
     const button = $("startCheckout");
+    const checkoutWindow = window.open("about:blank", "pgws-secure-checkout");
     button.disabled = true;
+    show("checkoutFallback", false);
     message("gateMessage", "Opening secure Stripe checkout…");
     try {
       const result = await api("/api/pgws/checkout", { method: "POST" });
-      const checkoutWindow = window.open(result.checkoutUrl, "_blank", "noopener,noreferrer");
-      if (!checkoutWindow) {
-        location.href = result.checkoutUrl;
-        return;
+      if (checkoutWindow) {
+        checkoutWindow.opener = null;
+        checkoutWindow.location.replace(result.checkoutUrl);
+      } else {
+        $("checkoutFallback").href = result.checkoutUrl;
+        show("checkoutFallback", true);
       }
-      button.disabled = false;
-      show("checkPayment", true);
-      message("gateMessage", "Complete the secure Stripe checkout in the new tab. Then return here and choose “I completed checkout.”");
+      message("gateMessage", "Complete checkout in the secure Stripe tab. Keep this P31 page open—it will unlock automatically, with no second login.");
+      await waitForPayment(checkoutWindow);
     } catch (error) {
+      if (checkoutWindow && !checkoutWindow.closed) checkoutWindow.close();
       button.disabled = false;
       message("gateMessage", error.message, true);
     }
@@ -301,11 +426,17 @@
   async function boot() {
     if (!client) {
       setView("auth");
+      setAuthIntent(null);
       return message("authMessage", "PGWS account services are unavailable.", true);
     }
     const { data } = await client.auth.getSession();
     session = data.session;
-    if (!session) return setView("auth");
+    if (!session) {
+      setView("auth");
+      const requestedIntent = new URLSearchParams(location.search).get("intent");
+      setAuthIntent(requestedIntent === "join" || requestedIntent === "signin" ? requestedIntent : null);
+      return;
+    }
     const checkout = new URLSearchParams(location.search).get("checkout");
     await loadPortal({ poll: checkout === "success" });
   }

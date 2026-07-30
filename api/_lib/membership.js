@@ -105,7 +105,21 @@ export async function activateMembership({
     onboarding_steps: [],
     academy_progress: {},
   }, { upsert: true, onConflict: "user_id", returning: false });
-  const myEff = await ensureMyEffActivation({ user, membership, appUrl });
+  let myEff;
+  try {
+    myEff = await ensureMyEffActivation({ user, membership, appUrl });
+  } catch (error) {
+    const base = (process.env.MYEFF_PUBLIC_URL || "https://my.estherfundsfoundation.org").replace(/\/+$/, "");
+    myEff = { connection: { status: "needs_review" }, url: base };
+    await recordAudit({
+      actorType: "system",
+      action: "myeff.activation_deferred",
+      entityType: "pgws_membership",
+      entityId: membership.id,
+      afterState: { message: String(error.message || "MyEFF activation was deferred").slice(0, 500) },
+      requestId,
+    });
+  }
   await recordAudit({
     actorUserId,
     actorType,

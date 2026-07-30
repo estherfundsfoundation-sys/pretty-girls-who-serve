@@ -29,12 +29,36 @@ test("the approved Stripe link is account-bound and never unlocks from the brows
   assert.doesNotMatch(browser, /activateMembership|payment_status\s*=\s*"paid"/);
 });
 
-test("the payment-link experience tells members how to return and check access", () => {
+test("membership has one welcome flow and returns from checkout automatically", () => {
   const html = read("p31.html");
   const browser = read("p31.js");
-  assert.match(html, /id="checkPayment"/);
-  assert.match(browser, /window\.open\(result\.checkoutUrl/);
-  assert.match(browser, /loadPortal\(\{ poll: true \}\)/);
+  assert.match(html, /Welcome,<br><em>Sister\.<\/em>/);
+  assert.match(html, /id="chooseJoin"/);
+  assert.match(html, /id="chooseSignIn"/);
+  assert.match(html, /id="gateWelcomeName"/);
+  assert.match(browser, /window\.open\("about:blank", "pgws-secure-checkout"\)/);
+  assert.match(browser, /waitForPayment\(checkoutWindow\)/);
+  assert.doesNotMatch(browser, /location\.assign\(result\.checkoutUrl\)/);
+  assert.match(browser, /checkout === "success"/);
+  assert.match(browser, /legacyClaimInFlight/);
+});
+
+test("the public site no longer exposes a second member-profile login", () => {
+  const html = read("index.html");
+  const browser = read("member-portal.js");
+  assert.match(html, /href="\/p31\?panel=profile"/);
+  assert.match(html, /href="\/p31\?panel=sisterhood"/);
+  assert.doesNotMatch(html, /id="memberPortalModal"/);
+  assert.doesNotMatch(browser, /signInWithPassword|signUp\(/);
+});
+
+test("every P31 button id referenced by the portal script exists", () => {
+  const html = read("p31.html");
+  const browser = read("p31.js");
+  const ids = [...browser.matchAll(/\$\("([A-Za-z][A-Za-z0-9_-]*)"\)/g)].map((match) => match[1]);
+  for (const id of new Set(ids)) assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
+  const panels = [...html.matchAll(/data-panel="([^"]+)"/g)].map((match) => match[1]);
+  for (const panel of panels) assert.match(html, new RegExp(`data-panel-content="${panel}"`), `missing panel ${panel}`);
 });
 
 test("MyEFF connection uses signed server callbacks and separate records", () => {
