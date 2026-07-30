@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="community.css">
   <link rel="stylesheet" href="community-live.css">
   <link rel="stylesheet" href="member-portal.css">
+  <link rel="stylesheet" href="journal.css">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -24,7 +25,7 @@
     </a>
     <button class="menu" id="menuButton" aria-expanded="false" aria-controls="nav">Menu</button>
     <nav id="nav" aria-label="Primary navigation">
-      <a href="#hub">The Hub</a><a href="#herBible">HER Bible</a><a href="#chapters">Chapters</a><a href="#academy">Academy</a><a href="#membership">Membership</a>
+      <a href="#hub">The Hub</a><a href="#herJournal">Her Journal</a><a href="#herBible">HER Bible</a><a href="#chapters">Chapters</a><a href="#academy">Academy</a><a href="#membership">Membership</a>
     </nav>
     <a class="join-mini" href="#membership">Join PGWS <span>→</span></a>
   </header>
@@ -68,7 +69,7 @@
         <article class="hub-card"><span class="card-icon">✝</span><p class="card-kicker">04 · FAITH</p><h3>Proverbs 31</h3><p>Practical growth in wisdom, worth, stewardship, and discipline.</p><a href="#academy">Start the Academy →</a></article>
         <article class="hub-card"><span class="card-icon">✿</span><p class="card-kicker">05 · SERVICE</p><h3>Serve Studio</h3><p>Service ideas, impact plans, and events that love people well.</p><button data-modal="serve">Open Serve Studio →</button></article>
         <article class="hub-card"><span class="card-icon">⌂</span><p class="card-kicker">06 · RESOURCES</p><h3>Pretty Vault</h3><p>Brunch guides, devotionals, templates, graphics, and more.</p><button data-modal="vault">Open the vault →</button></article>
-        <article class="hub-card"><span class="card-icon">✝</span><p class="card-kicker">07 · MINISTRY</p><h3>Prayer Closet</h3><p>Devotionals, Bible plans, prayer prompts, worship nights, and faith-filled resets.</p><a href="#ministry">Enter ministry →</a></article>
+        <article class="hub-card"><span class="card-icon">✝</span><p class="card-kicker">07 · MINISTRY</p><h3>Prayer Closet</h3><p>A private 45-day return-to-God journal, deep Bible studies, prayer prompts, and faith-filled resets.</p><a class="button button-dark" href="#herJournal">Begin Her Return →</a></article>
         <article class="hub-card"><span class="card-icon">⌁</span><p class="card-kicker">08 · BECOMING</p><h3>Mirror Talk</h3><p>Identity, high self-esteem, boundaries, confidence, wellness, and becoming secure in Christ.</p><a href="#ministry">Open Mirror Talk →</a></article>
       </div></div>
     </section>
@@ -105,11 +106,169 @@
       <div class="ministry-intro"><div><p class="eyebrow">THE MINISTRY + MIRROR ROOM</p><h2>God calls you<br><em>beautiful.</em></h2><p>PGWS ministry is not about being perfect. It is a gentle, faith-filled room for women to know God, grow in truth, heal their self-talk, and become secure in who they are.</p></div><div class="scripture-note"><span>✝</span><p>“She is clothed with strength and dignity.”</p><small>PROVERBS 31:25</small></div></div>
       <div class="ministry-grid">
         <article><span>01</span><h3>Identity Reset</h3><p>Guides for replacing comparison, shame, and negative self-talk with truth, confidence, and God-given worth.</p><button data-modal="identity">Open the reset →</button></article>
-        <article><span>02</span><h3>Prayer &amp; Bible</h3><p>Beginner-friendly Bible plans, Scripture studies, prayer prompts, worship resources, and devotional moments.</p><button data-modal="prayer">Open ministry tools →</button></article>
+        <article><span>02</span><h3>Prayer &amp; Bible</h3><p>Forty-five in-depth studies, honest reflection, practical spiritual disciplines, and a private encrypted journal.</p><a class="button button-dark" href="#herJournal">Begin Her Return →</a></article>
         <article><span>03</span><h3>Soft Life, Strong Faith</h3><p>Wellness, routines, boundaries, beauty, rest, emotional health, and taking care of the woman God is growing.</p><button data-modal="wellness">Open becoming tools →</button></article>
         <article><span>04</span><h3>Sister Support</h3><p>Resources for friendship, conflict, healthy relationships, asking for help, and supporting another woman with care.</p><button data-modal="support">Open sister support →</button></article>
       </div>
     </div></section>
+
+
+    <section class="her-return section" id="herJournal">
+      <div class="container return-container">
+        <div class="return-heading">
+          <div class="return-heading-copy">
+            <p class="eyebrow">HER RETURN · A 45-DAY BIBLE-STUDY JOURNAL</p>
+            <h2>Come back<br><em>without pretending.</em></h2>
+            <p>This is not a collection of quick quotes. Her Return is a serious, grace-filled pathway for the woman who feels distant, distracted, disappointed, numb, ashamed, or simply hungry for God again. Move through Scripture slowly. Study the context. Tell the truth. Practice what you read. Let consistency grow from communion—not performance.</p>
+          </div>
+          <aside class="return-promise">
+            <span>✝</span>
+            <h3>Grace meets honesty.</h3>
+            <p>Five movements guide the journey: Return, Rooted, Renewed, Wise Love, and Sent. Every day includes biblical context, a substantial lesson, three truths, four reflection questions, a practice, and prayer.</p>
+          </aside>
+        </div>
+
+        <div class="return-layout">
+          <article class="study-room" aria-labelledby="journalStudyTitle">
+            <div class="movement-tabs" id="journalMovementTabs" aria-label="Choose a Her Return movement"></div>
+            <div class="day-grid" id="journalDayGrid" aria-label="Choose one of 45 studies"></div>
+            <div class="study-paper">
+              <div class="study-meta">
+                <span id="journalDayNumber">DAY 1 OF 45</span>
+                <span id="journalMovementName">RETURN</span>
+                <span class="saved-badge" id="journalSavedBadge" hidden>PRIVATE PAGE SAVED</span>
+              </div>
+              <h3 id="journalStudyTitle">Let God tell the truth about where you are</h3>
+              <p class="study-reference">
+                <span id="journalPassage">Psalm 139:1-24</span>
+                <button id="openStudyPassage" type="button">Open the full chapter in HER Bible →</button>
+              </p>
+
+              <div class="study-block">
+                <h4>BEFORE YOU INTERPRET IT</h4>
+                <p id="journalContext"></p>
+              </div>
+              <div class="study-block">
+                <h4>THE DEEPER LESSON</h4>
+                <p id="journalLesson"></p>
+              </div>
+              <div class="study-block">
+                <h4>THREE TRUTHS TO CARRY</h4>
+                <ul class="truth-list" id="journalTruths"></ul>
+              </div>
+              <div class="study-block">
+                <h4>QUESTIONS THAT REQUIRE HONESTY</h4>
+                <ol class="question-list" id="journalQuestions"></ol>
+              </div>
+              <div class="study-block practice-card">
+                <h4>TODAY'S EMBODIED PRACTICE</h4>
+                <p id="journalPractice"></p>
+              </div>
+              <div class="study-block prayer-card">
+                <h4>PRAY THIS SLOWLY</h4>
+                <p id="journalPrayerPrompt"></p>
+              </div>
+              <div class="study-nav">
+                <button id="previousStudy" type="button">← Previous study</button>
+                <button id="nextStudy" type="button">Next study →</button>
+              </div>
+            </div>
+          </article>
+
+          <aside class="return-sidebar" aria-label="Private journal account and progress">
+            <div class="progress-ring-copy">
+              <div class="progress-number"><span id="journalProgressNumber">0</span></div>
+              <div>
+                <h3>Your quiet progress</h3>
+                <p id="journalProgressCopy">Your return can begin with one honest page.</p>
+              </div>
+            </div>
+            <div class="return-progress-track" aria-hidden="true"><i id="journalProgressFill"></i></div>
+
+            <div class="return-account" id="journalAuthGate">
+              <p class="eyebrow">MEMBER SIGN-IN</p>
+              <h4>Keep your pages with you.</h4>
+              <p>Use your existing PGWS member account or create one here. This sign-in identifies your encrypted pages; it does not reveal what you write.</p>
+              <form id="journalAuthForm">
+                <label for="journalAuthEmail">Email address</label>
+                <input id="journalAuthEmail" type="email" autocomplete="email" required placeholder="you@email.com">
+                <label for="journalAuthPassword">PGWS account password</label>
+                <input id="journalAuthPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters">
+                <div class="return-account-actions">
+                  <button type="submit">Sign in →</button>
+                  <button id="journalCreateAccount" type="button">Create account</button>
+                </div>
+              </form>
+              <p class="form-message" id="journalAuthMessage"></p>
+            </div>
+
+            <div class="account-bar" id="journalMemberBar" hidden>
+              <span id="journalMemberEmail"></span>
+              <button id="journalLockButton" type="button" hidden>Lock journal</button>
+              <button id="journalSignOut" type="button">Sign out</button>
+              <button id="journalExport" type="button" disabled>Download my journal</button>
+            </div>
+
+            <div class="privacy-seal">
+              <strong>♡ Your words belong to you.</strong>
+              <p>Your reflection is encrypted on this device before it is saved. PGWS Nationals and database viewers cannot read the stored journal text.</p>
+              <small>Your journal lock phrase is never sent or stored. If you forget it, nobody at PGWS can recover your entries.</small>
+            </div>
+          </aside>
+
+          <section class="journal-zone" aria-labelledby="journalEditorTitle">
+            <div class="journal-zone-head">
+              <div>
+                <p class="eyebrow">MY PRIVATE PRAYER CLOSET</p>
+                <h3 id="journalEditorTitle">Write where only you can read.</h3>
+                <p id="journalEditorDay">Day 1: Let God tell the truth about where you are</p>
+              </div>
+              <span class="journal-status-chip" id="journalPrivacyStatus">PRIVATE MEMBER JOURNAL</span>
+            </div>
+
+            <div class="journal-lock" id="journalLockGate" hidden>
+              <h4>Create or enter your private journal lock phrase.</h4>
+              <p>This is separate from your PGWS password. Make it memorable, use at least 12 characters, and never email it to anyone. Your browser uses it to encrypt and decrypt your pages.</p>
+              <div class="journal-lock-fields">
+                <div>
+                  <label for="journalPassphrase">Journal lock phrase</label>
+                  <input id="journalPassphrase" type="password" minlength="12" autocomplete="new-password" spellcheck="false" placeholder="A private phrase only you know">
+                </div>
+                <div id="journalConfirmWrap">
+                  <label for="journalPassphraseConfirm">Type it again</label>
+                  <input id="journalPassphraseConfirm" type="password" minlength="12" autocomplete="new-password" spellcheck="false" placeholder="Confirm your private phrase">
+                </div>
+              </div>
+              <button class="unlock-journal" id="journalUnlockButton" type="button">Unlock my private journal →</button>
+              <p class="journal-note" id="journalLockMessage"></p>
+            </div>
+
+            <form class="journal-editor" id="journalEditor" hidden>
+              <div class="reflection-field">
+                <label for="journalReflection">What is God showing you through today's passage and questions?</label>
+                <textarea id="journalReflection" maxlength="12000" placeholder="You do not have to sound spiritual here. Tell the truth about what you notice, resist, grieve, desire, or need to surrender…"></textarea>
+              </div>
+              <div>
+                <label for="journalPrayerResponse">Your honest prayer</label>
+                <textarea id="journalPrayerResponse" maxlength="6000" placeholder="Speak to God from where you actually are…"></textarea>
+              </div>
+              <div>
+                <label for="journalNextStep">Your next faithful step</label>
+                <textarea id="journalNextStep" maxlength="3000" placeholder="Name one specific, realistic act of obedience or care…"></textarea>
+              </div>
+              <div class="journal-editor-footer">
+                <div class="journal-actions">
+                  <button class="save-entry" type="submit">Encrypt &amp; save this page</button>
+                  <button class="delete-entry" id="journalDelete" type="button">Delete this day's page</button>
+                </div>
+                <p class="journal-note" id="journalSaveMessage" aria-live="polite"></p>
+              </div>
+            </form>
+          </section>
+        </div>
+      </div>
+      <p class="journal-disclaimer">Her Return supports spiritual reflection and discipleship; it is not a replacement for pastoral care, licensed mental-health treatment, medical care, or emergency services.</p>
+    </section>
 
     <section class="her-bible section" id="herBible"><div class="container">
       <div class="bible-heading"><div><p class="eyebrow">THE HER BIBLE</p><h2>Her Word.<br><em>Her quiet place.</em></h2><p>A full, beautiful Bible reader for every season of becoming. Open a book, settle into a chapter, and meet God right where you are.</p></div><div class="bible-seal"><span>HER</span><b>BIBLE</b><small>WORD • WISDOM • WONDER</small></div></div>
@@ -161,9 +320,11 @@
   <dialog id="memberPortalModal" class="community-modal member-modal"><button class="close" id="closeMemberPortal" aria-label="Close">×</button><div id="memberAuthPane"><p class="eyebrow">SISTER ACCESS</p><h2>Come on in.</h2><p>Use an email and password to create your PGWS member profile. Your email stays private.</p><form id="memberAuthForm"><label for="portalEmail">Email address</label><input id="portalEmail" type="email" autocomplete="email" required placeholder="you@email.com"><label for="portalPassword">Password</label><input id="portalPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters"><div class="portal-auth-actions"><button class="button button-dark" type="submit" data-mode="signin">Sign in →</button><button class="soft-button" type="button" id="memberSignup">Create my account</button></div></form><p class="form-message" id="portalAuthMessage"></p></div><div id="memberProfilePane" hidden><p class="eyebrow">MY PGWS PROFILE</p><h2>Let sisters know you.</h2><p>Only details you choose to share appear in the public directory.</p><form id="memberProfileForm"><label for="profileName">First name or sister name</label><input id="profileName" maxlength="50" required placeholder="Example: Shayna"><label for="profileCity">City and state <small>(optional)</small></label><input id="profileCity" maxlength="100" placeholder="Example: Atlanta, GA"><label for="profileChapter">Chapter or group <small>(optional)</small></label><input id="profileChapter" maxlength="100" placeholder="Example: PGWS Atlanta"><label for="profileBio">About you <small>(optional)</small></label><textarea id="profileBio" maxlength="500" placeholder="What are you growing in, serving through, or hoping to find in sisterhood?"></textarea><label for="profileInterests">Interests or service passions <small>(separate with commas)</small></label><input id="profileInterests" maxlength="250" placeholder="Example: mentoring, worship, fashion, community service"><label class="directory-toggle"><input id="directoryVisible" type="checkbox" checked> Show my chosen profile details in the Sister Directory</label><button class="button button-dark" type="submit">Save my profile →</button><button class="text-signout" id="memberSignOut" type="button">Sign out</button><p class="form-message" id="profileMessage"></p></form></div></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="community-config.js"></script>
+  <script src="journal-data.js"></script>
   <script src="app.js"></script>
   <script src="community.js"></script>
   <script src="community-live.js"></script>
   <script src="member-portal.js"></script>
+  <script src="journal.js"></script>
 </body>
 </html>
