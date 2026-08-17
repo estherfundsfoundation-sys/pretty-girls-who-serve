@@ -248,10 +248,15 @@
             body.error || "Your application could not be submitted.",
           );
         event.currentTarget.reset();
-        message.textContent = `Received! Your reference is ${body.reference}. Check your email for confirmation. PGWS Nationals will contact qualified applicants about interviews.`;
+        const emailNote =
+          body.receipt === "sent"
+            ? "Check your email for confirmation."
+            : "Your application is saved even if the confirmation email is delayed.";
+        message.textContent = `Received! Your reference is ${body.reference}. ${emailNote} PGWS Nationals will contact qualified applicants about interviews.`;
         message.scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (error) {
         message.textContent = error.message;
+        message.scrollIntoView({ behavior: "smooth", block: "center" });
       } finally {
         button.disabled = false;
       }
