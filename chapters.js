@@ -230,11 +230,22 @@
     .querySelector("#chapterApplication")
     .addEventListener("submit", async (event) => {
       event.preventDefault();
-      const button = event.submitter;
+      const form = event.currentTarget;
+      const button = event.submitter || form.querySelector('[type="submit"]');
       const message = document.querySelector("#applicationMessage");
+      const invalid = form.querySelector(":invalid");
+      if (invalid) {
+        invalid.focus();
+        invalid.reportValidity();
+        message.textContent =
+          "Please complete the highlighted field before submitting.";
+        return;
+      }
+      if (form.dataset.submitting === "true") return;
+      form.dataset.submitting = "true";
       button.disabled = true;
       message.textContent = "Submitting your charter interest securely…";
-      const values = Object.fromEntries(new FormData(event.currentTarget));
+      const values = Object.fromEntries(new FormData(form));
       values.acknowledgement = Boolean(values.acknowledgement);
       try {
         const response = await fetch("/api/pgws/chapter-applications", {
@@ -247,18 +258,21 @@
           throw new Error(
             body.error || "Your application could not be submitted.",
           );
-        event.currentTarget.reset();
+        form.reset();
         const emailNote =
           body.receipt === "sent"
             ? "Check your email for confirmation."
             : "Your application is saved even if the confirmation email is delayed.";
-        message.textContent = `Received! Your reference is ${body.reference}. ${emailNote} PGWS Nationals will contact qualified applicants about interviews.`;
+        message.textContent = body.duplicate
+          ? `We already received a recent application from this email. Your reference is ${body.reference}. Please do not submit another copy.`
+          : `Received! Your reference is ${body.reference}. ${emailNote} PGWS Nationals will contact qualified applicants about interviews.`;
         message.scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (error) {
         message.textContent = error.message;
         message.scrollIntoView({ behavior: "smooth", block: "center" });
       } finally {
         button.disabled = false;
+        delete form.dataset.submitting;
       }
     });
   renderResources();

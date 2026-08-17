@@ -67,6 +67,14 @@ test("Chapter submissions notify Nationals and track delivery", () => {
   assert.match(migration, /national_notification_sent_at timestamptz/);
 });
 
+test("Chapter form prevents repeat submissions and explains duplicate applications", () => {
+  const client = read("chapters.js");
+  assert.match(client, /form\.querySelector\(":invalid"\)/);
+  assert.match(client, /form\.dataset\.submitting/);
+  assert.match(client, /body\.duplicate/);
+  assert.match(client, /already received a recent application/);
+});
+
 test("the downloadable PGWS chapter manual is present", () => {
   const manual = path.join(root, "downloads/pgws-chapter-launch-leadership-manual.pdf");
   assert.ok(fs.existsSync(manual));
