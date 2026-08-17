@@ -9,7 +9,6 @@ import {
 import { dbInsert, dbPatch, dbSelect, recordAudit } from "../_lib/pgws.js";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phonePattern = /^[+()\d\s.-]{7,30}$/;
 const states = new Set([
   "AL",
   "AK",
@@ -78,6 +77,25 @@ function escapeHtml(value) {
   );
 }
 
+function requiredText(body, key, label, maxLength) {
+  const value = cleanText(body[key], maxLength);
+  if (!value) throw new Error(`${label} is required.`);
+  return value;
+}
+
+function isValidPhone(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 20;
+}
+
+async function safely(run, fallbackStatus = "failed") {
+  try {
+    return await run();
+  } catch {
+    return { status: fallbackStatus };
+  }
+}
+
 async function sendReceipt({ email, name, applicationReference, appUrl }) {
   const key = process.env.RESEND_API_KEY;
   if (!key) return { status: "skipped" };
@@ -133,104 +151,183 @@ async function sendNationalNotification({ application, appUrl }) {
   return { status: "sent" };
 }
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
-  try {
-    const body = await readJson(req, 32_000);
-    if (cleanText(body.website, 200))
-      return json(res, 200, { reference: "PGWS-RECEIVED" });
-    const founderName = cleanText(body.founderName, 120, true);
-    const founderEmail = cleanText(body.founderEmail, 254, true).toLowerCase();
-    const founderPhone = cleanText(body.founderPhone, 30, true);
-    const cofounderName = cleanText(body.cofounderName, 120);
-    const cofounderEmail = cleanText(body.cofounderEmail, 254).toLowerCase();
-    const chapterType = cleanText(body.chapterType, 20, true);
-    const state = cleanText(body.state, 2, true).toUpperCase();
-    if (
-      !emailPattern.test(founderEmail) ||
-      (cofounderEmail && !emailPattern.test(cofounderEmail))
-    )
-      throw new Error("Enter a valid founder and co-founder email address.");
-    if (!phonePattern.test(founderPhone))
-      throw new Error("Enter a valid founder phone number.");
-    if (
-      !states.has(state) ||
-      !["campus", "community", "virtual"].includes(chapterType)
-    )
-      throw new Error("Choose a valid chapter type and state.");
-    if (body.acknowledgement !== true)
-      throw new Error(
-        "You must acknowledge the pre-approval rules before submitting.",
+export function createChapterApplicationHandler({
+  select = dbSelect,
+  insert = dbInsert,
+  patch = dbPatch,
+  audit = recordAudit,
+  sendApplicantReceipt = sendReceipt,
+  sendNationalsNotification = sendNationalNotification,
+  makeReference = reference,
+  now = () => new Date(),
+} = {}) {
+  return async function handler(req, res) {
+    if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
+    try {
+      const body = await readJson(req, 32_000);
+      if (cleanText(body.website, 200))
+        return json(res, 200, { reference: "PGWS-RECEIVED" });
+      const founderName = requiredText(
+        body,
+        "founderName",
+        "Founder name",
+        120,
       );
-    const existing = await dbSelect(
-      "pgws_chapter_applications",
-      `select=reference_number,created_at,status&founder_email_key=eq.${encodeURIComponent(founderEmail)}&created_at=gte.${encodeURIComponent(new Date(Date.now() - 7 * 86400000).toISOString())}&status=neq.withdrawn&order=created_at.desc&limit=1`,
-    );
-    if (existing?.[0])
-      return json(res, 200, {
-        reference: existing[0].reference_number,
-        duplicate: true,
+      const founderEmail = requiredText(
+        body,
+        "founderEmail",
+        "Founder email",
+        254,
+      ).toLowerCase();
+      const founderPhone = requiredText(
+        body,
+        "founderPhone",
+        "Founder phone number",
+        30,
+      );
+      const cofounderName = cleanText(body.cofounderName, 120);
+      const cofounderEmail = cleanText(body.cofounderEmail, 254).toLowerCase();
+      const chapterType = requiredText(body, "chapterType", "Chapter type", 20);
+      const state = requiredText(body, "state", "State", 2).toUpperCase();
+      const institution = requiredText(
+        body,
+        "institution",
+        "College, university, or community name",
+        180,
+      );
+      const city = requiredText(body, "city", "City", 100);
+      const whyPgws = requiredText(body, "whyPgws", "Your PGWS response", 2500);
+      const leadership = requiredText(
+        body,
+        "leadership",
+        "Your leadership response",
+        2500,
+      );
+      const ministry = requiredText(
+        body,
+        "ministry",
+        "Your Christ-centered service response",
+        2500,
+      );
+      const communityNeed = requiredText(
+        body,
+        "communityNeed",
+        "Your campus or community need response",
+        2500,
+      );
+      const experience = requiredText(
+        body,
+        "experience",
+        "Your experience response",
+        2500,
+      );
+      if (
+        !emailPattern.test(founderEmail) ||
+        (cofounderEmail && !emailPattern.test(cofounderEmail))
+      )
+        throw new Error("Enter a valid founder and co-founder email address.");
+      if (!isValidPhone(founderPhone))
+        throw new Error("Enter a valid founder phone number.");
+      if (
+        !states.has(state) ||
+        !["campus", "community", "virtual"].includes(chapterType)
+      )
+        throw new Error("Choose a valid chapter type and state.");
+      if (body.acknowledgement !== true && body.acknowledgement !== "on")
+        throw new Error(
+          "You must acknowledge the pre-approval rules before submitting.",
+        );
+      const existing = await select(
+        "pgws_chapter_applications",
+        `select=reference_number,created_at,status&founder_email_key=eq.${encodeURIComponent(founderEmail)}&created_at=gte.${encodeURIComponent(new Date(now().getTime() - 7 * 86400000).toISOString())}&status=neq.withdrawn&order=created_at.desc&limit=1`,
+      );
+      if (existing?.[0])
+        return json(res, 200, {
+          reference: existing[0].reference_number,
+          duplicate: true,
+        });
+      const rows = await insert("pgws_chapter_applications", {
+        reference_number: makeReference(),
+        founder_name: founderName,
+        founder_email: founderEmail,
+        founder_phone: founderPhone,
+        cofounder_name: cofounderName || null,
+        cofounder_email: cofounderEmail || null,
+        chapter_type: chapterType,
+        institution,
+        city,
+        state,
+        why_pgws: whyPgws,
+        leadership_response: leadership,
+        ministry_response: ministry,
+        community_need: communityNeed,
+        experience,
+        acknowledgement: true,
       });
-    const rows = await dbInsert("pgws_chapter_applications", {
-      reference_number: reference(),
-      founder_name: founderName,
-      founder_email: founderEmail,
-      founder_phone: founderPhone,
-      cofounder_name: cofounderName || null,
-      cofounder_email: cofounderEmail || null,
-      chapter_type: chapterType,
-      institution: cleanText(body.institution, 180, true),
-      city: cleanText(body.city, 100, true),
-      state,
-      why_pgws: cleanText(body.whyPgws, 2500, true),
-      leadership_response: cleanText(body.leadership, 2500, true),
-      ministry_response: cleanText(body.ministry, 2500, true),
-      community_need: cleanText(body.communityNeed, 2500, true),
-      experience: cleanText(body.experience, 2500, true),
-      acknowledgement: true,
-    });
-    const application = rows?.[0];
-    if (!application)
-      throw new Error("The chapter application could not be saved.");
-    await recordAudit({
-      actorType: "public_applicant",
-      action: "chapter_application.submitted",
-      entityType: "pgws_chapter_application",
-      entityId: application.id,
-      requestId: String(req.headers["x-vercel-id"] || ""),
-    });
-    const receipt = await sendReceipt({
-      email: founderEmail,
-      name: founderName,
-      applicationReference: application.reference_number,
-      appUrl: publicOrigin(req),
-    });
-    if (receipt.status === "sent")
-      await dbPatch(
-        "pgws_chapter_applications",
-        `id=eq.${application.id}`,
-        { confirmation_sent_at: new Date().toISOString() },
-        { returning: false },
+      const application = rows?.[0];
+      if (!application)
+        throw new Error("The chapter application could not be saved.");
+      await safely(
+        () =>
+          audit({
+            actorType: "public_applicant",
+            action: "chapter_application.submitted",
+            entityType: "pgws_chapter_application",
+            entityId: application.id,
+            requestId: String(req.headers["x-vercel-id"] || ""),
+          }),
+        "untracked",
       );
-    const nationalNotification = await sendNationalNotification({
-      application,
-      appUrl: publicOrigin(req),
-    });
-    if (nationalNotification.status === "sent")
-      await dbPatch(
-        "pgws_chapter_applications",
-        `id=eq.${application.id}`,
-        { national_notification_sent_at: new Date().toISOString() },
-        { returning: false },
+      let appUrl = "https://prettygirlswhoserve.org";
+      try {
+        appUrl = publicOrigin(req);
+      } catch {
+        // A saved application must still succeed if the public URL is misconfigured.
+      }
+      const receipt = await safely(() =>
+        sendApplicantReceipt({
+          email: founderEmail,
+          name: founderName,
+          applicationReference: application.reference_number,
+          appUrl,
+        }),
       );
-    return json(res, 201, {
-      reference: application.reference_number,
-      receipt: receipt.status,
-      nationalNotification: nationalNotification.status,
-    });
-  } catch (error) {
-    return json(res, Number(error.status) || 400, {
-      error: error.message || "The application could not be submitted.",
-    });
-  }
+      if (receipt.status === "sent")
+        await safely(
+          () =>
+            patch(
+              "pgws_chapter_applications",
+              `id=eq.${application.id}`,
+              { confirmation_sent_at: now().toISOString() },
+              { returning: false },
+            ),
+          "untracked",
+        );
+      const nationalNotification = await safely(() =>
+        sendNationalsNotification({ application, appUrl }),
+      );
+      if (nationalNotification.status === "sent")
+        await safely(
+          () =>
+            patch(
+              "pgws_chapter_applications",
+              `id=eq.${application.id}`,
+              { national_notification_sent_at: now().toISOString() },
+              { returning: false },
+            ),
+          "untracked",
+        );
+      return json(res, 201, {
+        reference: application.reference_number,
+        receipt: receipt.status,
+        nationalNotification: nationalNotification.status,
+      });
+    } catch (error) {
+      return json(res, Number(error.status) || 400, {
+        error: error.message || "The application could not be submitted.",
+      });
+    }
+  };
 }
+
+export default createChapterApplicationHandler();
