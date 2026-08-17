@@ -6,7 +6,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle, KeepTogether, HRFlowable
 
-OUT = Path(__file__).resolve().parents[1] / "public" / "downloads" / "pgws-chapter-launch-leadership-manual.pdf"
+OUT = Path(__file__).resolve().parents[1] / "downloads" / "pgws-chapter-launch-leadership-manual.pdf"
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 INK = colors.HexColor("#26151E")

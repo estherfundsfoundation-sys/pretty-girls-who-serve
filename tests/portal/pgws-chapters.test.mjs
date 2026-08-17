@@ -56,7 +56,7 @@ test("Nationals can review the chapter application pipeline", () => {
 });
 
 test("the downloadable PGWS chapter manual is present", () => {
-  const manual = path.join(root, "public/downloads/pgws-chapter-launch-leadership-manual.pdf");
+  const manual = path.join(root, "downloads/pgws-chapter-launch-leadership-manual.pdf");
   assert.ok(fs.existsSync(manual));
   assert.ok(fs.statSync(manual).size > 20_000);
 });
