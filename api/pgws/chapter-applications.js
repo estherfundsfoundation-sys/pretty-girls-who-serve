@@ -103,6 +103,36 @@ async function sendReceipt({ email, name, applicationReference, appUrl }) {
   return { status: "sent" };
 }
 
+async function sendNationalNotification({ application, appUrl }) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { status: "skipped" };
+  const nationalEmail =
+    process.env.PGWS_CHAPTER_NOTIFICATION_EMAIL ||
+    "nationals@estherfundsinc.org";
+  const cofounder = application.cofounder_name
+    ? `${application.cofounder_name}${application.cofounder_email ? ` (${application.cofounder_email})` : ""}`
+    : "Not provided";
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from:
+        process.env.PGWS_EMAIL_FROM ||
+        "Pretty Girls Who Serve <pgws@estherfundsinc.org>",
+      to: [nationalEmail],
+      reply_to: application.founder_email,
+      subject: `New PGWS chapter application — ${application.institution}`,
+      text: `A new PGWS chapter application was submitted.\n\nReference: ${application.reference_number}\nFounder: ${application.founder_name}\nFounder email: ${application.founder_email}\nFounder phone: ${application.founder_phone}\nCo-founder: ${cofounder}\nChapter type: ${application.chapter_type}\nInstitution: ${application.institution}\nLocation: ${application.city}, ${application.state}\n\nReview the application: ${appUrl}/pgws-admin\n\nThis is an internal PGWS Nationals notification.`,
+      html: `<!doctype html><html><body style="margin:0;background:#fff7fa;font-family:Arial,sans-serif;color:#3d2430"><div style="max-width:640px;margin:auto;padding:32px 18px"><div style="padding:30px;border-radius:24px 24px 0 0;background:#26151e;color:white"><p style="margin:0;color:#f6b9d2;font-size:12px;letter-spacing:2px">PGWS NATIONALS · NEW SUBMISSION</p><h1 style="font-family:Georgia,serif;font-size:36px;line-height:1.1;margin:12px 0">A chapter application is ready for review.</h1></div><div style="padding:30px;border:1px solid #ead5df;border-top:0;background:white"><p><b>Reference:</b> ${escapeHtml(application.reference_number)}</p><p><b>Founder:</b> ${escapeHtml(application.founder_name)}<br><b>Email:</b> ${escapeHtml(application.founder_email)}<br><b>Phone:</b> ${escapeHtml(application.founder_phone)}</p><p><b>Co-founder:</b> ${escapeHtml(cofounder)}</p><p><b>Chapter:</b> ${escapeHtml(application.chapter_type)}<br><b>Institution:</b> ${escapeHtml(application.institution)}<br><b>Location:</b> ${escapeHtml(application.city)}, ${escapeHtml(application.state)}</p><p style="margin-top:28px"><a href="${escapeHtml(appUrl)}/pgws-admin" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#b84b7d;color:white;text-decoration:none;font-weight:bold">Open the Nationals review desk →</a></p><p style="margin-top:24px;color:#725766;font-size:12px">Internal PGWS Nationals notification. Replying sends your message to the founder.</p></div></div></body></html>`,
+    }),
+  });
+  if (!response.ok) return { status: "failed" };
+  return { status: "sent" };
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
   try {
@@ -182,9 +212,21 @@ export default async function handler(req, res) {
         { confirmation_sent_at: new Date().toISOString() },
         { returning: false },
       );
+    const nationalNotification = await sendNationalNotification({
+      application,
+      appUrl: publicOrigin(req),
+    });
+    if (nationalNotification.status === "sent")
+      await dbPatch(
+        "pgws_chapter_applications",
+        `id=eq.${application.id}`,
+        { national_notification_sent_at: new Date().toISOString() },
+        { returning: false },
+      );
     return json(res, 201, {
       reference: application.reference_number,
       receipt: receipt.status,
+      nationalNotification: nationalNotification.status,
     });
   } catch (error) {
     return json(res, Number(error.status) || 400, {

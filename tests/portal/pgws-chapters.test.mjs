@@ -55,6 +55,18 @@ test("Nationals can review the chapter application pipeline", () => {
   assert.match(adminHtml, /id="chapterApplicationList"/);
 });
 
+test("Chapter submissions notify Nationals and track delivery", () => {
+  const api = read("api/pgws/chapter-applications.js");
+  const migration = read(
+    "supabase/migrations/20260817180000_pgws_chapter_notification_tracking.sql",
+  );
+  assert.match(api, /PGWS_CHAPTER_NOTIFICATION_EMAIL/);
+  assert.match(api, /nationals@estherfundsinc\.org/);
+  assert.match(api, /New PGWS chapter application/);
+  assert.match(api, /national_notification_sent_at/);
+  assert.match(migration, /national_notification_sent_at timestamptz/);
+});
+
 test("the downloadable PGWS chapter manual is present", () => {
   const manual = path.join(root, "downloads/pgws-chapter-launch-leadership-manual.pdf");
   assert.ok(fs.existsSync(manual));
