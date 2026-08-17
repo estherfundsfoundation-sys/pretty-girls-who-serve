@@ -97,7 +97,9 @@ async function safely(run, fallbackStatus = "failed") {
 }
 
 async function sendReceipt({ email, name, applicationReference, appUrl }) {
-  const key = process.env.RESEND_API_KEY;
+  const key = String(process.env.RESEND_API_KEY || "")
+    .replace(/^\uFEFF/, "")
+    .trim();
   if (!key) return { status: "skipped" };
   const firstName = name.trim().split(/\s+/)[0] || "Founder";
   const response = await fetch("https://api.resend.com/emails", {
@@ -122,7 +124,9 @@ async function sendReceipt({ email, name, applicationReference, appUrl }) {
 }
 
 async function sendNationalNotification({ application, appUrl }) {
-  const key = process.env.RESEND_API_KEY;
+  const key = String(process.env.RESEND_API_KEY || "")
+    .replace(/^\uFEFF/, "")
+    .trim();
   if (!key) return { status: "skipped" };
   const nationalEmail =
     process.env.PGWS_CHAPTER_NOTIFICATION_EMAIL ||
