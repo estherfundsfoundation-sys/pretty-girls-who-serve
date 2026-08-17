@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>PGWS Nationals Administration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/pgws-admin.css" />
+  </head>
+  <body>
+    <header>
+      <a href="/"><b>PGWS</b><span>NATIONALS ADMINISTRATION</span></a>
+      <nav>
+        <a href="/p31">P31 Portal</a
+        ><button id="adminSignOut" hidden>Sign out</button>
+      </nav>
+    </header>
+    <main>
+      <section class="admin-auth" id="adminAuth">
+        <div>
+          <p class="eyebrow">RESTRICTED NATIONAL WORKSPACE</p>
+          <h1>Lead the<br />sisterhood well.</h1>
+          <p>
+            Membership, payments, legacy migration, MyEFF connections, chapters,
+            service, support, and accountability in one protected command
+            center.
+          </p>
+        </div>
+        <form id="adminAuthForm">
+          <h2>Administrator sign-in</h2>
+          <label
+            >Email<input
+              id="adminEmail"
+              type="email"
+              required
+              autocomplete="email" /></label
+          ><label
+            >Password<input
+              id="adminPassword"
+              type="password"
+              required
+              autocomplete="current-password" /></label
+          ><button>Enter administration →</button>
+          <p id="adminAuthMessage"></p>
+        </form>
+      </section>
+      <section class="admin-shell" id="adminShell" hidden>
+        <aside>
+          <p class="eyebrow">PGWS NATIONALS</p>
+          <h2>Command center</h2>
+          <nav id="adminNav">
+            <button class="active" data-admin-panel="overview">Overview</button
+            ><button data-admin-panel="members">Members</button
+            ><button data-admin-panel="chapters">Chapters</button
+            ><button data-admin-panel="payments">Payments</button
+            ><button data-admin-panel="migration">Join It migration</button
+            ><button data-admin-panel="myeff">MyEFF access</button
+            ><button data-admin-panel="service">Service</button
+            ><button data-admin-panel="support">Support</button
+            ><button data-admin-panel="technical">Needs attention</button>
+          </nav>
+          <button id="refreshAdmin">Refresh live data</button>
+        </aside>
+        <div class="admin-content">
+          <section
+            class="admin-panel active"
+            data-admin-panel-content="overview"
+          >
+            <div class="page-title">
+              <div>
+                <p class="eyebrow">LIVE OPERATIONS</p>
+                <h1>Every sister. One accountable home.</h1>
+                <p id="generatedAt">Loading current PGWS data…</p>
+              </div>
+            </div>
+            <div class="metric-grid" id="metricGrid"></div>
+            <div class="attention-card">
+              <p class="eyebrow">NEEDS ATTENTION</p>
+              <div id="attentionList"></div>
+            </div>
+          </section>
+          <section class="admin-panel" data-admin-panel-content="members">
+            <div class="page-title">
+              <div>
+                <p class="eyebrow">MEMBERSHIP</p>
+                <h1>Members and access</h1>
+                <p>
+                  Search verified membership records, grant complimentary
+                  access, and manage status without deleting history.
+                </p>
+              </div>
+            </div>
+            <form class="quick-form" id="complimentaryForm">
+              <h2>Grant complimentary lifetime membership</h2>
+              <label
+                >Existing PGWS account email<input
+                  id="complimentaryEmail"
+                  type="email"
+                  required /></label
+              ><label
+                >Reason<textarea
+                  id="complimentaryReason"
+                  required
+                  maxlength="500"
+                ></textarea></label
+              ><button>Grant verified access →</button>
+              <p id="complimentaryMessage"></p>
+            </form>
+            <label class="search"
+              >Search members<input
+                id="memberSearch"
+                type="search"
+                placeholder="Member ID, source, status, or user ID"
+            /></label>
+            <div class="data-list" id="memberList"></div>
+          </section>
+          <section class="admin-panel" data-admin-panel-content="payments">
+            <div class="page-title">
+              <div>
+                <p class="eyebrow">FINANCE + ACCESS</p>
+                <h1>Payments</h1>
+                <p>
+                  Stripe is payment truth. The browser success page never
+                  activates membership.
+                </p>
+              </div>
+            </div>
+            <form class="quick-form" id="reconcileForm">
+              <h2>Reconcile a verified Stripe Session</h2>
+              <label
+                >Checkout Session ID<input
+                  id="reconcileSession"
+                  required
+                  placeholder="cs_..." /></label
+              ><button>Verify with Stripe and reconcile →</button>
+              <p id="reconcileMessage"></p>
+            </form>
+            <div class="data-list" id="paymentList"></div>
+          </section>
+          <section class="admin-panel" data-admin-panel-content="chapters">
+            <div class="page-title">
+              <div>
+                <p class="eyebrow">CHAPTER PIPELINE</p>
+                <h1>Founders and chapters</h1>
+                <p>
+                  Review every application, record screening and interview
+                  outcomes, and keep public chapter listings separate from
+                  applicants.
+                </p>
+              </div>
+              <a href="/chapters" target="_blank"
+                >Open public Chapter House →</a
+              >
+            </div>
+            <div class="data-list" id="chapterApplicationList"></div>
+            <div class="page-title">
+              <div>
+                <p class="eyebrow">APPROVED RECORDS</p>
+                <h2>Chapter directory records</h2>
+              </div>
+            </div>
+            <div class="data-list" id="chapterAdminList"></div>
+          </section>
+          <section class="admin-panel" data-admin-panel-content="migration">
+            <div class="page-title">
+              <div>
+                <p class="eyebrow">NO MEMBER PAYS TWICE</p>
+                <h1>Join It migration</h1>
+                <p>
+                  Paste the original CSV export. Rows are validated, duplicated
+                  emails are held, and verified users claim by matching their
+                  confirmed email.
+                </p>
+              </div>
+            </div>
+            <form class="quick-form wide-form" id="legacyImportForm">
+              <h2>Import legacy PGWS members</h2>
+              <label
+                >Join It CSV<textarea
+                  id="legacyCsv"
+                  required
+                  placeholder="First Name,Last Name,Email,Member ID,Membership Type,Join Date,Chapter"
+                ></textarea></label
+              ><button>Validate and import →</button>
+              <p id="legacyImportMessage"></p>
+            </form>
+            <div class="data-list" id="legacyList"></div>
+          </section>
+          <section class="admin-panel" data-admin-panel-content="myeff">
+            <div class="page-title">
+              <div>
+                <p class="eyebrow">CONNECTED, NOT COMBINED</p>
+                <h1>MyEFF access</h1>
+                <p>
+                  Track included EFF national membership activation without
+                  copying passwords or private PGWS content.
+                </p>
+              </div>
+            </div>
+            <div class="data-list" id="myeffList"></div>
+          </section>
+          <section class="admin-panel" data-admin-panel-content="service">
+            <div class="page-title">
+              <div>
+                <p class="eyebrow">VERIFIED IMPACT</p>
+                <h1>Service review</h1>
+                <p>
+                  Approve real service, return incomplete entries, or reject
+                  records with a clear reason.
+                </p>
+              </div>
+            </div>
+            <div class="data-list" id="serviceAdminList"></div>
+          </section>
+          <section class="admin-panel" data-admin-panel-content="support">
+            <div class="page-title">
+              <div>
+                <p class="eyebrow">RELATIONSHIP + FOLLOW-THROUGH</p>
+                <h1>Member support</h1>
+                <p>
+                  See requests, assign follow-through, and close the loop inside
+                  PGWS.
+                </p>
+              </div>
+            </div>
+            <div class="data-list" id="supportAdminList"></div>
+          </section>
+          <section class="admin-panel" data-admin-panel-content="technical">
+            <div class="page-title">
+              <div>
+                <p class="eyebrow">PAYMENT + PROVISIONING HEALTH</p>
+                <h1>Needs attention</h1>
+                <p>
+                  Webhook failures, payment reviews, ambiguous imports, and
+                  stalled MyEFF connections.
+                </p>
+              </div>
+            </div>
+            <div class="data-list" id="technicalList"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <dialog id="actionDialog">
+      <button class="close" id="closeDialog">×</button>
+      <h2 id="dialogTitle">Review</h2>
+      <form id="dialogForm">
+        <input id="dialogEntityId" type="hidden" /><input
+          id="dialogAction"
+          type="hidden"
+        /><label>Decision<select id="dialogStatus"></select></label
+        ><label
+          >Notes<textarea id="dialogNotes" maxlength="3000"></textarea></label
+        ><button>Save decision →</button>
+        <p id="dialogMessage"></p>
+      </form>
+    </dialog>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/community-config.js"></script>
+    <script src="/pgws-admin.js"></script>
+  </body>
+</html>

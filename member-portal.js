@@ -1,28 +1,91 @@
 (() => {
-  const supabase = window.supabase?.createClient(
+  const client = window.supabase?.createClient(
     window.PGWS_SUPABASE_URL,
-    window.PGWS_SUPABASE_PUBLISHABLE_KEY
+    window.PGWS_SUPABASE_PUBLISHABLE_KEY,
   );
   const $ = (id) => document.getElementById(id);
-  if (!supabase) return;
-  const modal = $('memberPortalModal'), authPane = $('memberAuthPane'), profilePane = $('memberProfilePane');
-  const message = (id, value, bad = false) => { const el = $(id); if (el) { el.textContent = value; el.style.color = bad ? '#b11d56' : ''; } };
-  const initials = (name='S') => name.trim().split(/\s+/).slice(0,2).map(x => x[0]).join('').toUpperCase();
-  const escape = (s='') => String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  async function user(){ const {data} = await supabase.auth.getUser(); return data.user; }
-  async function loadDirectory(){ const {data,error} = await supabase.from('pgws_profiles').select('display_name,city_state,chapter_name,bio,interests').eq('directory_visible',true).order('updated_at',{ascending:false}).limit(60); const grid=$('directoryGrid'); if(error){ grid.innerHTML='<p class="directory-empty">The directory will be ready once profiles begin arriving.</p>'; return; } renderDirectory(data||[]); }
-  function renderDirectory(rows){ const term=($('directorySearch').value||'').toLowerCase().trim(); const filtered=rows.filter(r=>Object.values(r).join(' ').toLowerCase().includes(term)); $('directoryGrid').innerHTML=filtered.length?filtered.map(r=>`<article class="directory-card"><div class="avatar">${initials(r.display_name)}</div><h4>${escape(r.display_name)}</h4><p>${escape([r.city_state,r.chapter_name].filter(Boolean).join(' · ')||'PGWS sister')}</p>${r.bio?`<p>${escape(r.bio)}</p>`:''}<div class="tags">${(r.interests||[]).slice(0,5).map(t=>`<span>${escape(t)}</span>`).join('')}</div></article>`).join(''):'<p class="directory-empty">No sisters match that search yet.</p>'; }
-  let directoryRows=[];
-  async function refreshDirectory(){ const {data}=await supabase.from('pgws_profiles').select('display_name,city_state,chapter_name,bio,interests').eq('directory_visible',true).order('updated_at',{ascending:false}).limit(60); directoryRows=data||[]; renderDirectory(directoryRows); }
-  async function loadLounge(){ const {data}=await supabase.from('pgws_lounge_messages').select('display_name,message,created_at').order('created_at',{ascending:false}).limit(30); const box=$('loungeMessages'); box.innerHTML=(data||[]).length?(data||[]).reverse().map(r=>`<p class="lounge-message"><b>${escape(r.display_name)}</b><br>${escape(r.message)}</p>`).join(''):'<p class="directory-empty">Be the first sister to say hello.</p>'; }
-  async function updatePortal(){ const u=await user(); $('loungeForm').hidden=!u; $('openLoungeLogin').hidden=!!u; await refreshDirectory(); await loadLounge(); }
-  async function openPortal(){ modal.showModal(); const u=await user(); authPane.hidden=!!u; profilePane.hidden=!u; if(u){ const {data}=await supabase.from('pgws_profiles').select('*').eq('id',u.id).maybeSingle(); $('profileName').value=data?.display_name||''; $('profileCity').value=data?.city_state||''; $('profileChapter').value=data?.chapter_name||''; $('profileBio').value=data?.bio||''; $('profileInterests').value=(data?.interests||[]).join(', '); $('directoryVisible').checked=data?.directory_visible!==false; } }
-  $('openMemberPortal')?.addEventListener('click',openPortal); $('openLoungeLogin')?.addEventListener('click',openPortal); $('closeMemberPortal')?.addEventListener('click',()=>modal.close());
-  $('memberAuthForm')?.addEventListener('submit',async e=>{e.preventDefault(); const email=$('portalEmail').value.trim(),password=$('portalPassword').value; const {error}=await supabase.auth.signInWithPassword({email,password}); message('portalAuthMessage',error?.message||'Welcome back, sister.',!!error); if(!error) await openPortal();});
-  $('memberSignup')?.addEventListener('click',async()=>{const email=$('portalEmail').value.trim(),password=$('portalPassword').value;if(!email||password.length<8){message('portalAuthMessage','Use an email and a password with at least 8 characters.',true);return;}const {error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin+'/#memberPortal'}});message('portalAuthMessage',error?.message||'Check your email to confirm your new account.',!!error);});
-  $('memberProfileForm')?.addEventListener('submit',async e=>{e.preventDefault();const u=await user();if(!u)return;const profile={id:u.id,display_name:$('profileName').value.trim(),city_state:$('profileCity').value.trim()||null,chapter_name:$('profileChapter').value.trim()||null,bio:$('profileBio').value.trim()||null,interests:$('profileInterests').value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,10),directory_visible:$('directoryVisible').checked,updated_at:new Date().toISOString()};const {error}=await supabase.from('pgws_profiles').upsert(profile);message('profileMessage',error?.message||'Your sister profile is saved.',!!error);if(!error)await updatePortal();});
-  $('memberSignOut')?.addEventListener('click',async()=>{await supabase.auth.signOut();modal.close();await updatePortal();});
-  $('loungeForm')?.addEventListener('submit',async e=>{e.preventDefault();const u=await user(),text=$('loungeInput').value.trim();if(!u||!text)return;const {data:profile}=await supabase.from('pgws_profiles').select('display_name').eq('id',u.id).maybeSingle();const {error}=await supabase.from('pgws_lounge_messages').insert({author_id:u.id,display_name:profile?.display_name||'PGWS sister',message:text});if(!error){$('loungeInput').value='';await loadLounge();}});
-  $('directorySearch')?.addEventListener('input',()=>renderDirectory(directoryRows));
-  updatePortal();
+  if (!client) return;
+
+  const escape = (value = "") => String(value).replace(/[&<>'"]/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;",
+  })[character]);
+  const initials = (name = "PG") => name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "PG";
+  let directoryRows = [];
+
+  function renderDirectory() {
+    const term = ($("directorySearch")?.value || "").toLowerCase().trim();
+    const rows = directoryRows.filter((row) => Object.values(row).join(" ").toLowerCase().includes(term));
+    $("directoryGrid").innerHTML = rows.length
+      ? rows.map((row) => `<article class="directory-card"><div class="avatar">${initials(row.display_name)}</div><h4>${escape(row.display_name)}</h4><p>${escape([row.city_state, row.chapter_name].filter(Boolean).join(" · ") || "PGWS sister")}</p>${row.bio ? `<p>${escape(row.bio)}</p>` : ""}<div class="tags">${(row.interests || []).slice(0, 5).map((tag) => `<span>${escape(tag)}</span>`).join("")}</div></article>`).join("")
+      : '<p class="directory-empty">No sisters match that search yet.</p>';
+  }
+
+  async function loadDirectory() {
+    const { data, error } = await client
+      .from("pgws_profiles")
+      .select("display_name,city_state,chapter_name,bio,interests")
+      .eq("directory_visible", true)
+      .order("updated_at", { ascending: false })
+      .limit(60);
+    if (error) {
+      $("directoryGrid").innerHTML = '<p class="directory-empty">The directory is temporarily unavailable. Please try again shortly.</p>';
+      return;
+    }
+    directoryRows = data || [];
+    renderDirectory();
+  }
+
+  async function loadLounge() {
+    const { data, error } = await client
+      .from("pgws_lounge_messages")
+      .select("display_name,message,created_at")
+      .order("created_at", { ascending: false })
+      .limit(30);
+    const box = $("loungeMessages");
+    if (error) {
+      box.innerHTML = '<p class="directory-empty">The Sister Lounge is temporarily unavailable.</p>';
+      return;
+    }
+    box.innerHTML = (data || []).length
+      ? [...data].reverse().map((row) => `<p class="lounge-message"><b>${escape(row.display_name)}</b><br>${escape(row.message)}</p>`).join("")
+      : '<p class="directory-empty">Be the first sister to say hello.</p>';
+  }
+
+  async function refreshMemberState() {
+    const { data } = await client.auth.getSession();
+    const signedIn = Boolean(data.session);
+    $("loungeForm").hidden = !signedIn;
+    $("openLoungeLogin").hidden = signedIn;
+    await Promise.all([loadDirectory(), loadLounge()]);
+  }
+
+  $("loungeForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const { data } = await client.auth.getUser();
+    const user = data.user;
+    const value = $("loungeInput").value.trim();
+    if (!user) {
+      location.href = "/p31?panel=sisterhood";
+      return;
+    }
+    if (!value) return;
+    const { data: profile } = await client.from("pgws_profiles").select("display_name").eq("id", user.id).maybeSingle();
+    const { error } = await client.from("pgws_lounge_messages").insert({
+      author_id: user.id,
+      display_name: profile?.display_name || user.user_metadata?.display_name || "PGWS sister",
+      message: value,
+    });
+    if (!error) {
+      $("loungeInput").value = "";
+      await loadLounge();
+    }
+  });
+
+  $("directorySearch")?.addEventListener("input", renderDirectory);
+  client.auth.onAuthStateChange(() => refreshMemberState());
+  refreshMemberState();
 })();
