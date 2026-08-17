@@ -3,11 +3,21 @@ import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypt
 const defaultUrl = "https://tocnikeuyitavjsbrhkp.supabase.co";
 const defaultPublishableKey = "sb_publishable_QoawcaIkCq0Hpmrmfo_e8g_SiSaX1Is";
 
-export const pgwsUrl = (process.env.PGWS_SUPABASE_URL || defaultUrl).replace(/\/+$/, "");
-export const pgwsPublishableKey = process.env.PGWS_SUPABASE_PUBLISHABLE_KEY || defaultPublishableKey;
+function cleanEnvironmentValue(value) {
+  return String(value || "").replace(/^\uFEFF/, "").trim();
+}
+
+export const pgwsUrl = cleanEnvironmentValue(
+  process.env.PGWS_SUPABASE_URL || defaultUrl,
+).replace(/\/+$/, "");
+export const pgwsPublishableKey = cleanEnvironmentValue(
+  process.env.PGWS_SUPABASE_PUBLISHABLE_KEY || defaultPublishableKey,
+);
 
 function serviceKey() {
-  const value = process.env.PGWS_SUPABASE_SERVICE_ROLE_KEY;
+  const value = cleanEnvironmentValue(
+    process.env.PGWS_SUPABASE_SERVICE_ROLE_KEY,
+  );
   if (!value) throw new Error("PGWS server access is not configured.");
   return value;
 }
