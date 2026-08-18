@@ -258,8 +258,59 @@
       members,
       "No members match this search.",
       (item) =>
-        `<article><div><h3>${escape(item.display_name || item.email || item.membership_id)}</h3><p>${escape(item.email || "Email unavailable")} · ${escape(item.membership_id)}${item.chapter_name ? ` · ${escape(item.chapter_name)}` : ""}${item.city_state ? `<br>${escape(item.city_state)}` : ""}</p></div><div><strong>${escape(pretty(item.source))}</strong><small>${escape(pretty(item.payment_status))} · joined ${escape(date(item.joined_at))}</small></div><div class="actions"><span class="status">${escape(pretty(item.status))}</span>${item.status === "active" ? `<button class="danger" data-member-action="suspended" data-membership-id="${escape(item.id)}">Suspend</button>` : `<button data-member-action="active" data-membership-id="${escape(item.id)}">Activate</button>`}</div></article>`,
+        `<article class="member-record"><div class="member-identity">${
+          item.avatar_url
+            ? `<img src="${escape(item.avatar_url)}" alt="${escape(item.display_name || "Member")}">`
+            : `<span>${escape(
+                (item.display_name || item.email || "PG")
+                  .split(/\s+/)
+                  .map((part) => part[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase(),
+              )}</span>`
+        }<div><h3>${escape(item.display_name || item.email || item.membership_id)}</h3><p>${escape(item.email || "Email unavailable")} · ${escape(item.membership_id)}${item.chapter_name ? ` · ${escape(item.chapter_name)}` : ""}${item.city_state ? `<br>${escape(item.city_state)}` : ""}${item.bio ? `<br>${escape(item.bio)}` : ""}</p></div></div><div><strong>${escape(pretty(item.source))}</strong><small>${escape(pretty(item.payment_status))} · joined ${escape(date(item.joined_at))}</small><small>${item.directory_visible ? "Public directory profile" : "Private profile"}</small></div><div class="actions"><span class="status">${escape(pretty(item.status))}</span><button data-edit-member="${escape(item.user_id)}">View and edit profile</button>${item.status === "active" ? `<button class="danger" data-member-action="suspended" data-membership-id="${escape(item.id)}">Suspend</button>` : `<button data-member-action="active" data-membership-id="${escape(item.id)}">Activate</button>`}</div></article>`,
     );
+    document
+      .querySelectorAll("[data-edit-member]")
+      .forEach((button) =>
+        button.addEventListener("click", () =>
+          openMemberProfile(button.dataset.editMember),
+        ),
+      );
+  }
+  function openMemberProfile(userId) {
+    const item = (data.members || []).find(
+      (member) => member.user_id === userId,
+    );
+    if (!item) return;
+    $("memberProfileUserId").value = item.user_id;
+    $("memberProfileName").value = item.display_name || "";
+    $("memberProfileEmail").value = item.email || "";
+    $("memberProfileCity").value = item.city_state || "";
+    $("memberProfileChapter").value = item.chapter_name || "";
+    $("memberProfileBio").value = item.bio || "";
+    $("memberProfileInterests").value = Array.isArray(item.interests)
+      ? item.interests.join(", ")
+      : "";
+    $("memberProfileVisible").checked = item.directory_visible === true;
+    $("memberProfilePhoto").value = "";
+    const preview = $("memberProfilePreview");
+    preview.hidden = !item.avatar_url;
+    preview.src = item.avatar_url || "";
+    $("memberProfileInitials").hidden = Boolean(item.avatar_url);
+    $("memberProfileInitials").textContent = (
+      item.display_name ||
+      item.email ||
+      "PG"
+    )
+      .split(/\s+/)
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+    message("memberProfileMessage", "");
+    $("memberProfileDialog").showModal();
   }
   async function load() {
     try {
@@ -427,6 +478,60 @@
     }
   });
   $("closeDialog").addEventListener("click", () => $("actionDialog").close());
+  $("closeMemberProfile").addEventListener("click", () =>
+    $("memberProfileDialog").close(),
+  );
+  $("memberProfilePhoto").addEventListener("change", () => {
+    const file = $("memberProfilePhoto").files?.[0];
+    if (!file) return;
+    $("memberProfilePreview").src = URL.createObjectURL(file);
+    $("memberProfilePreview").hidden = false;
+    $("memberProfileInitials").hidden = true;
+  });
+  $("memberProfileForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const userId = $("memberProfileUserId").value;
+    try {
+      message("memberProfileMessage", "Saving member profile…");
+      const file = $("memberProfilePhoto").files?.[0];
+      let avatarUrl = "";
+      if (file) {
+        const upload = await fetch(
+          `/api/pgws/admin-avatar?userId=${encodeURIComponent(userId)}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": file.type },
+            body: file,
+          },
+        );
+        const uploadBody = await upload.json().catch(() => ({}));
+        if (!upload.ok)
+          throw new Error(
+            uploadBody.error || "The profile picture could not be uploaded.",
+          );
+        avatarUrl = uploadBody.avatarUrl;
+      }
+      const result = await api("/api/pgws/admin", {
+        method: "POST",
+        body: JSON.stringify({
+          action: "update_member_profile",
+          userId,
+          displayName: $("memberProfileName").value,
+          cityState: $("memberProfileCity").value,
+          chapterName: $("memberProfileChapter").value,
+          bio: $("memberProfileBio").value,
+          interests: $("memberProfileInterests").value,
+          directoryVisible: $("memberProfileVisible").checked,
+          avatarUrl,
+        }),
+      });
+      message("memberProfileMessage", result.message);
+      await load();
+      setTimeout(() => $("memberProfileDialog").close(), 500);
+    } catch (error) {
+      message("memberProfileMessage", error.message, true);
+    }
+  });
   $("dialogForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const action = $("dialogAction").value;

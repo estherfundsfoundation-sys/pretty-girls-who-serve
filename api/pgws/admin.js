@@ -107,7 +107,11 @@ async function findAuthUser({ userId, email }) {
     );
     const user = await response.json();
     if (response.ok && user?.id)
-      return { id: user.id, email: String(user.email || "").toLowerCase() };
+      return {
+        id: user.id,
+        email: String(user.email || "").toLowerCase(),
+        raw: user,
+      };
   }
   if (email) {
     const response = await fetch(
@@ -122,7 +126,11 @@ async function findAuthUser({ userId, email }) {
           .toLowerCase() === email.trim().toLowerCase(),
     );
     if (user)
-      return { id: user.id, email: String(user.email).trim().toLowerCase() };
+      return {
+        id: user.id,
+        email: String(user.email).trim().toLowerCase(),
+        raw: user,
+      };
   }
   throw new Error(
     "No PGWS account matched that member. Ask her to create or claim her PGWS account first.",
@@ -173,10 +181,7 @@ async function summary() {
       "pgws_chapter_applications",
       "select=*&order=created_at.desc&limit=500",
     ),
-    dbSelect(
-      "pgws_profiles",
-      "select=id,display_name,city_state,chapter_name&limit=1000",
-    ),
+    dbSelect("pgws_profiles", "select=*&limit=1000"),
   ]);
   const usersResponse = await fetch(
     `${pgwsUrl}/auth/v1/admin/users?page=1&per_page=1000`,
@@ -194,6 +199,11 @@ async function summary() {
     display_name: profilesById.get(item.user_id)?.display_name || "",
     city_state: profilesById.get(item.user_id)?.city_state || "",
     chapter_name: profilesById.get(item.user_id)?.chapter_name || "",
+    bio: profilesById.get(item.user_id)?.bio || "",
+    interests: profilesById.get(item.user_id)?.interests || [],
+    directory_visible:
+      profilesById.get(item.user_id)?.directory_visible === true,
+    avatar_url: usersById.get(item.user_id)?.user_metadata?.avatar_url || "",
   }));
   return {
     metrics: {
@@ -296,6 +306,77 @@ async function postAction(req, user, body) {
       afterState: rows?.[0],
     });
     return { membership: rows?.[0], message: `Membership is now ${status}.` };
+  }
+  if (action === "update_member_profile") {
+    const target = await findAuthUser({
+      userId: cleanText(body.userId, 80, true),
+    });
+    const interests = Array.isArray(body.interests)
+      ? body.interests
+          .map((value) => cleanText(value, 40))
+          .filter(Boolean)
+          .slice(0, 12)
+      : cleanText(body.interests, 500)
+          .split(",")
+          .map((value) => value.trim())
+          .filter(Boolean)
+          .slice(0, 12);
+    const before =
+      (
+        await dbSelect(
+          "pgws_profiles",
+          `select=*&id=eq.${encodeURIComponent(target.id)}&limit=1`,
+        )
+      )?.[0] || null;
+    const profile = {
+      id: target.id,
+      display_name: cleanText(body.displayName, 50, true),
+      city_state: cleanText(body.cityState, 100) || null,
+      chapter_name: cleanText(body.chapterName, 100) || null,
+      bio: cleanText(body.bio, 500) || null,
+      interests,
+      directory_visible: Boolean(body.directoryVisible),
+      updated_at: new Date().toISOString(),
+    };
+    const rows = await dbInsert("pgws_profiles", profile, {
+      upsert: true,
+      onConflict: "id",
+    });
+    const avatarUrl = cleanText(body.avatarUrl, 1000);
+    const authUpdate = await fetch(
+      `${pgwsUrl}/auth/v1/admin/users/${encodeURIComponent(target.id)}`,
+      {
+        method: "PUT",
+        headers: { ...serviceHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_metadata: {
+            ...(target.raw?.user_metadata || {}),
+            display_name: profile.display_name,
+            ...(avatarUrl
+              ? {
+                  avatar_url: avatarUrl,
+                  profile_photo_source: "national_admin",
+                }
+              : {}),
+          },
+        }),
+      },
+    );
+    if (!authUpdate.ok)
+      throw new Error("The member account profile could not be synchronized.");
+    await recordAudit({
+      actorUserId: user.id,
+      actorType: "admin",
+      action: "member_profile.updated",
+      entityType: "pgws_profile",
+      entityId: target.id,
+      beforeState: before,
+      afterState: rows?.[0] || profile,
+    });
+    return {
+      profile: rows?.[0] || profile,
+      message: "Member profile updated and audited.",
+    };
   }
   if (action === "review_service") {
     const entryId = cleanText(body.entryId, 80, true);

@@ -131,6 +131,20 @@ test("nationals admin uses a one-time code and secure cookie session", () => {
   );
 });
 
+test("Nationals can view and update complete member profiles and pictures", () => {
+  const html = read("pgws-admin.html");
+  const client = read("pgws-admin.js");
+  const admin = read("api/pgws/admin.js");
+  const avatar = read("api/pgws/admin-avatar.js");
+  assert.match(html, /memberProfileDialog/);
+  assert.match(client, /View and edit profile/);
+  assert.match(client, /memberProfilePhoto/);
+  assert.match(admin, /update_member_profile/);
+  assert.match(admin, /member_profile\.updated/);
+  assert.match(avatar, /requireAdmin/);
+  assert.match(avatar, /member_profile\.avatar_updated/);
+});
+
 test("private journal remains separate from paid membership records", () => {
   const migration = read(
     "supabase/migrations/20260730100000_mypgws_membership_foundation.sql",

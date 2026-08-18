@@ -11,7 +11,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/pgws-admin.css?v=9c5cb12" />
+    <link rel="stylesheet" href="/pgws-admin.css?v=member-profiles-1" />
   </head>
   <body>
     <header>
@@ -44,10 +44,20 @@
             Email my verification code
           </button>
           <div id="adminCodeStep" hidden>
-            <label>Six-digit code<input id="adminCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" /></label>
+            <label
+              >Six-digit code<input
+                id="adminCode"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="6"
+                pattern="[0-9]{6}"
+            /></label>
             <button>Verify and enter administration →</button>
           </div>
-          <small>No password or email link needed. Use the newest six-digit code sent to the authorized national email.</small>
+          <small
+            >No password or email link needed. Use the newest six-digit code
+            sent to the authorized national email.</small
+          >
           <p id="adminAuthMessage"></p>
         </form>
       </section>
@@ -262,8 +272,49 @@
         <p id="dialogMessage"></p>
       </form>
     </dialog>
+    <dialog id="memberProfileDialog" class="member-profile-dialog">
+      <button class="close" id="closeMemberProfile">×</button>
+      <h2>Member profile</h2>
+      <form id="memberProfileForm">
+        <input id="memberProfileUserId" type="hidden" />
+        <div class="profile-photo-editor">
+          <img id="memberProfilePreview" alt="Member profile" hidden />
+          <div id="memberProfileInitials">PGWS</div>
+          <label
+            >Replace profile picture<input
+              id="memberProfilePhoto"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+          /></label>
+        </div>
+        <label
+          >Name<input id="memberProfileName" maxlength="50" required
+        /></label>
+        <label>Email<input id="memberProfileEmail" readonly /></label>
+        <label
+          >City and state<input id="memberProfileCity" maxlength="100"
+        /></label>
+        <label
+          >Chapter<input id="memberProfileChapter" maxlength="100"
+        /></label>
+        <label
+          >Bio<textarea id="memberProfileBio" maxlength="500"></textarea>
+        </label>
+        <label
+          >Interests, separated by commas<input
+            id="memberProfileInterests"
+            maxlength="500"
+        /></label>
+        <label class="checkbox-line"
+          ><input id="memberProfileVisible" type="checkbox" /> Visible in the
+          member directory</label
+        >
+        <button>Save member profile →</button>
+        <p id="memberProfileMessage"></p>
+      </form>
+    </dialog>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/community-config.js"></script>
-    <script src="/pgws-admin.js?v=9c5cb12"></script>
+    <script src="/pgws-admin.js?v=member-profiles-1"></script>
   </body>
 </html>
