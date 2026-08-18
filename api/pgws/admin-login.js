@@ -51,18 +51,33 @@ async function generateLink(email, redirectTo) {
 
 async function sendLink(email, link) {
   const key = String(process.env.RESEND_API_KEY || "").trim();
-  if (!key) throw new Error("PGWS email delivery is not configured.");
-  const response = await fetch("https://api.resend.com/emails", {
+  const bridgeUrl = String(process.env.MISS_PGWS_MAIL_BRIDGE_URL || "").trim();
+  const bridgeSecret = String(process.env.PGWS_MAIL_BRIDGE_SECRET || "").trim();
+  const useBridge = Boolean(bridgeUrl && bridgeSecret);
+  if (!key && !useBridge) throw new Error("PGWS email delivery is not configured.");
+  const subject = "Your secure PGWS Nationals administration link";
+  const text = `Use this private, one-time link to enter PGWS Nationals Administration:\n\n${link}\n\nIf you did not request it, ignore this email. Never share this link.`;
+  const html = `<div style="max-width:620px;margin:auto;padding:32px;font-family:Arial,sans-serif;color:#21131a"><p style="color:#a13e68;font-weight:700;letter-spacing:1px">PRETTY GIRLS WHO SERVE</p><h1 style="font-family:Georgia,serif">PGWS Nationals Administration</h1><p>Your private, one-time administrator link is ready.</p><p><a href="${link}" style="display:inline-block;background:#21131a;color:#fff;padding:14px 20px;border-radius:10px;text-decoration:none;font-weight:700">Enter administration →</a></p><p style="font-size:13px;color:#715764">If you did not request this link, ignore this email. Never share the link.</p></div>`;
+  const response = await fetch(useBridge ? bridgeUrl : "https://api.resend.com/emails", {
     method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: process.env.PGWS_EMAIL_FROM || "Pretty Girls Who Serve <pgws@estherfundsinc.org>",
-      to: [email],
-      reply_to: "nationals@estherfundsinc.org",
-      subject: "Your secure PGWS Nationals administration link",
-      text: `Use this private, one-time link to enter PGWS Nationals Administration:\n\n${link}\n\nIf you did not request it, ignore this email. Never share this link.`,
-      html: `<div style="max-width:620px;margin:auto;padding:32px;font-family:Arial,sans-serif;color:#21131a"><p style="color:#a13e68;font-weight:700;letter-spacing:1px">PRETTY GIRLS WHO SERVE</p><h1 style="font-family:Georgia,serif">PGWS Nationals Administration</h1><p>Your private, one-time administrator link is ready.</p><p><a href="${link}" style="display:inline-block;background:#21131a;color:#fff;padding:14px 20px;border-radius:10px;text-decoration:none;font-weight:700">Enter administration →</a></p><p style="font-size:13px;color:#715764">If you did not request this link, ignore this email. Never share the link.</p></div>`,
-    }),
+    headers: {
+      ...(useBridge
+        ? { "x-pgws-mail-bridge-secret": bridgeSecret }
+        : { Authorization: `Bearer ${key}` }),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(
+      useBridge
+        ? { recipient: email, subject, text, html }
+        : {
+            from: process.env.PGWS_EMAIL_FROM || "Pretty Girls Who Serve <pgws@estherfundsinc.org>",
+            to: [email],
+            reply_to: "nationals@estherfundsinc.org",
+            subject,
+            text,
+            html,
+          },
+    ),
   });
   await parse(response, "The administrator email could not be sent.");
 }
