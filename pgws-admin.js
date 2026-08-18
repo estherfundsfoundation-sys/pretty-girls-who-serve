@@ -45,7 +45,9 @@
       ...options,
       headers: {
         ...(options.body ? { "Content-Type": "application/json" } : {}),
-        ...((await token()) ? { Authorization: `Bearer ${await token()}` } : {}),
+        ...((await token())
+          ? { Authorization: `Bearer ${await token()}` }
+          : {}),
       },
     });
     const body = await response.json().catch(() => ({}));
@@ -161,7 +163,7 @@
       data.chapterApplications,
       "No chapter applications yet.",
       (item) =>
-        `<article><div><h3>${escape(item.institution)}</h3><p>${escape(item.founder_name)} · ${escape(item.founder_email)}${item.cofounder_name ? ` · Co-founder: ${escape(item.cofounder_name)}` : ""}<br>${escape(item.city)}, ${escape(item.state)} · ${escape(pretty(item.chapter_type))}<br><b>Why PGWS:</b> ${escape(item.why_pgws)}</p></div><div><strong>${escape(item.reference_number)}</strong><small>${escape(date(item.created_at))}</small></div><div class="actions"><span class="status">${escape(pretty(item.status))}</span><button data-chapter-application="${escape(item.id)}">Review</button></div></article>`,
+        `<article class="application-record"><div class="application-summary"><h3>${escape(item.institution)}</h3><p>${escape(item.founder_name)} · ${escape(item.founder_email)}${item.cofounder_name ? ` · Co-founder: ${escape(item.cofounder_name)}` : ""}<br>${escape(item.city)}, ${escape(item.state)} · ${escape(pretty(item.chapter_type))}</p><details><summary>View full application</summary><div class="application-answers"><section><h4>Founder</h4><p><b>Name:</b> ${escape(item.founder_name)}<br><b>Email:</b> ${escape(item.founder_email)}<br><b>Phone:</b> ${escape(item.founder_phone || "Not provided")}</p></section><section><h4>Co-founder</h4><p><b>Name:</b> ${escape(item.cofounder_name || "Not provided")}<br><b>Email:</b> ${escape(item.cofounder_email || "Not provided")}</p></section><section><h4>Proposed chapter</h4><p><b>Type:</b> ${escape(pretty(item.chapter_type))}<br><b>Institution/community:</b> ${escape(item.institution)}<br><b>Location:</b> ${escape(item.city)}, ${escape(item.state)}<br><b>Reference:</b> ${escape(item.reference_number)}<br><b>Submitted:</b> ${escape(date(item.created_at))}<br><b>Acknowledgement accepted:</b> ${item.acknowledgement ? "Yes" : "No"}</p></section><section><h4>Why Pretty Girls Who Serve?</h4><p>${escape(item.why_pgws || "No response")}</p></section><section><h4>Leadership</h4><p>${escape(item.leadership_response || "No response")}</p></section><section><h4>Ministry and Christ-centered service</h4><p>${escape(item.ministry_response || "No response")}</p></section><section><h4>Campus or community need</h4><p>${escape(item.community_need || "No response")}</p></section><section><h4>Experience</h4><p>${escape(item.experience || "No response")}</p></section>${item.reviewer_notes ? `<section><h4>Nationals reviewer notes</h4><p>${escape(item.reviewer_notes)}</p></section>` : ""}</div></details></div><div><strong>${escape(item.reference_number)}</strong><small>${escape(date(item.created_at))}</small></div><div class="actions"><span class="status">${escape(pretty(item.status))}</span><button data-chapter-application="${escape(item.id)}">Review and update</button></div></article>`,
     );
     $("chapterAdminList").innerHTML = list(
       data.chapters,
@@ -302,13 +304,31 @@
   $("adminAuthForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const code = $("adminCode").value.trim();
-    if (!adminRequestId || !/^\d{6}$/.test(code)) return message("adminAuthMessage", "Enter the six-digit code from your newest email.", true);
+    if (!adminRequestId || !/^\d{6}$/.test(code))
+      return message(
+        "adminAuthMessage",
+        "Enter the six-digit code from your newest email.",
+        true,
+      );
     try {
-      const response = await fetch("/api/pgws/admin-verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: $("adminEmail").value.trim().toLowerCase(), code, requestId: adminRequestId }) });
+      const response = await fetch("/api/pgws/admin-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: $("adminEmail").value.trim().toLowerCase(),
+          code,
+          requestId: adminRequestId,
+        }),
+      });
       const body = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(body.error || "The verification code could not be confirmed.");
+      if (!response.ok)
+        throw new Error(
+          body.error || "The verification code could not be confirmed.",
+        );
       location.replace("/pgws-admin");
-    } catch (error) { message("adminAuthMessage", error.message, true); }
+    } catch (error) {
+      message("adminAuthMessage", error.message, true);
+    }
   });
   $("adminMagicLink").addEventListener("click", async () => {
     const email = $("adminEmail").value.trim().toLowerCase();
@@ -327,7 +347,10 @@
         body: JSON.stringify({ email }),
       });
       const body = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(body.error || "The secure login email could not be sent.");
+      if (!response.ok)
+        throw new Error(
+          body.error || "The secure login email could not be sent.",
+        );
       adminRequestId = body.requestId;
       show("adminCodeStep", true);
       $("adminCode").focus();

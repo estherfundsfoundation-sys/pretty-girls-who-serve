@@ -4,13 +4,26 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const root = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
 const read = (name) => fs.readFileSync(path.join(root, name), "utf8");
 
 test("P31 is hosted on the PGWS site with clean routes", () => {
   const vercel = JSON.parse(read("vercel.json"));
-  assert.ok(vercel.rewrites.some((route) => route.source === "/p31" && route.destination === "/p31.html"));
-  assert.ok(vercel.rewrites.some((route) => route.source === "/pgws-admin" && route.destination === "/pgws-admin.html"));
+  assert.ok(
+    vercel.rewrites.some(
+      (route) => route.source === "/p31" && route.destination === "/p31.html",
+    ),
+  );
+  assert.ok(
+    vercel.rewrites.some(
+      (route) =>
+        route.source === "/pgws-admin" &&
+        route.destination === "/pgws-admin.html",
+    ),
+  );
   assert.match(read("index.html"), /href="\/p31"/);
   assert.doesNotMatch(read("index.html"), /joinit\.com/i);
 });
@@ -26,7 +39,10 @@ test("the approved Stripe link is account-bound and never unlocks from the brows
   assert.match(webhook, /Number\(session\.amount_total\) !== 2000/);
   assert.match(webhook, /constructEvent\(rawBody, signature/);
   assert.match(browser, /\/api\/pgws\/me/);
-  assert.doesNotMatch(browser, /activateMembership|payment_status\s*=\s*"paid"/);
+  assert.doesNotMatch(
+    browser,
+    /activateMembership|payment_status\s*=\s*"paid"/,
+  );
 });
 
 test("membership has one welcome flow and returns from checkout automatically", () => {
@@ -36,7 +52,10 @@ test("membership has one welcome flow and returns from checkout automatically", 
   assert.match(html, /id="chooseJoin"/);
   assert.match(html, /id="chooseSignIn"/);
   assert.match(html, /id="gateWelcomeName"/);
-  assert.match(browser, /window\.open\("about:blank", "pgws-secure-checkout"\)/);
+  assert.match(
+    browser,
+    /window\.open\("about:blank", "pgws-secure-checkout"\)/,
+  );
   assert.match(browser, /waitForPayment\(checkoutWindow\)/);
   assert.doesNotMatch(browser, /location\.assign\(result\.checkoutUrl\)/);
   assert.match(browser, /checkout === "success"/);
@@ -55,10 +74,20 @@ test("the public site no longer exposes a second member-profile login", () => {
 test("every P31 button id referenced by the portal script exists", () => {
   const html = read("p31.html");
   const browser = read("p31.js");
-  const ids = [...browser.matchAll(/\$\("([A-Za-z][A-Za-z0-9_-]*)"\)/g)].map((match) => match[1]);
-  for (const id of new Set(ids)) assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
-  const panels = [...html.matchAll(/data-panel="([^"]+)"/g)].map((match) => match[1]);
-  for (const panel of panels) assert.match(html, new RegExp(`data-panel-content="${panel}"`), `missing panel ${panel}`);
+  const ids = [...browser.matchAll(/\$\("([A-Za-z][A-Za-z0-9_-]*)"\)/g)].map(
+    (match) => match[1],
+  );
+  for (const id of new Set(ids))
+    assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
+  const panels = [...html.matchAll(/data-panel="([^"]+)"/g)].map(
+    (match) => match[1],
+  );
+  for (const panel of panels)
+    assert.match(
+      html,
+      new RegExp(`data-panel-content="${panel}"`),
+      `missing panel ${panel}`,
+    );
 });
 
 test("MyEFF connection uses signed server callbacks and separate records", () => {
@@ -73,8 +102,13 @@ test("MyEFF connection uses signed server callbacks and separate records", () =>
 
 test("member and admin responses are non-cacheable and protected", () => {
   const vercel = JSON.parse(read("vercel.json"));
-  const apiHeaders = vercel.headers.find((entry) => entry.source === "/api/(.*)")?.headers || [];
-  assert.ok(apiHeaders.some((header) => header.key === "Cache-Control" && header.value === "no-store"));
+  const apiHeaders =
+    vercel.headers.find((entry) => entry.source === "/api/(.*)")?.headers || [];
+  assert.ok(
+    apiHeaders.some(
+      (header) => header.key === "Cache-Control" && header.value === "no-store",
+    ),
+  );
   assert.match(read("pgws-admin.html"), /noindex,nofollow/);
   assert.match(read("api/pgws/admin.js"), /requireAdmin/);
 });
@@ -91,12 +125,21 @@ test("nationals admin uses a one-time code and secure cookie session", () => {
   assert.match(login, /randomInt/);
   assert.match(verify, /timingSafeEqual/);
   assert.match(auth, /HttpOnly; Secure; SameSite=Lax/);
+  assert.match(
+    read("pgws-admin.css"),
+    /\[hidden\]\s*\{\s*display:\s*none\s*!important/,
+  );
 });
 
 test("private journal remains separate from paid membership records", () => {
-  const migration = read("supabase/migrations/20260730100000_mypgws_membership_foundation.sql");
+  const migration = read(
+    "supabase/migrations/20260730100000_mypgws_membership_foundation.sql",
+  );
   const membership = read("api/_lib/membership.js");
   assert.doesNotMatch(migration, /journal_entries|journal_ciphertext/i);
   assert.doesNotMatch(membership, /journal_entries|journal_ciphertext/i);
-  assert.match(read("p31.html"), /journal, prayer records, community moderation, and private sisterhood data are never copied into MyEFF/i);
+  assert.match(
+    read("p31.html"),
+    /journal, prayer records, community moderation, and private sisterhood data are never copied into MyEFF/i,
+  );
 });

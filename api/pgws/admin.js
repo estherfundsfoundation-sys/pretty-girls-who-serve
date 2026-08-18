@@ -26,6 +26,79 @@ function serviceHeaders() {
   return { apikey: key, Authorization: `Bearer ${key}` };
 }
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(
+    /[&<>'"]/g,
+    (character) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        '"': "&quot;",
+      })[character],
+  );
+}
+
+async function sendChapterScreeningEmail(application) {
+  const bridgeUrl = String(process.env.MISS_PGWS_MAIL_BRIDGE_URL || "").trim();
+  const bridgeSecret = String(process.env.PGWS_MAIL_BRIDGE_SECRET || "").trim();
+  const apiKey = String(process.env.RESEND_API_KEY || "").trim();
+  if (!(bridgeUrl && bridgeSecret) && !apiKey)
+    throw new Error("PGWS email delivery is not configured.");
+  const firstName = String(application.founder_name || "Founder")
+    .trim()
+    .split(/\s+/)[0];
+  const subject = `Your PGWS chapter application is in screening — ${application.institution}`;
+  const text = `Hi ${firstName},\n\nYour Pretty Girls Who Serve chapter application has moved into national screening.\n\nReference: ${application.reference_number}\nInstitution: ${application.institution}\n\nDuring screening, PGWS Nationals is reviewing your application for mission alignment, Christ-centered service, leadership readiness, and the needs of your campus or community. Screening is not final approval and does not guarantee an interview or charter.\n\nUntil you receive written approval from PGWS Nationals, please do not recruit publicly, collect money, open chapter social-media accounts, use PGWS branding, or represent the chapter as approved. Stay close to your email; we will contact you if we need additional information or invite you to the next step.\n\nWith love,\nPretty Girls Who Serve Nationals\nFaith · Purpose · Sisterhood · Service`;
+  const html = `<div style="max-width:640px;margin:auto;padding:32px 18px;font-family:Arial,sans-serif;color:#3d2430"><div style="padding:34px;border-radius:24px 24px 0 0;background:#26151e;color:white"><p style="margin:0;color:#f6b9d2;font-size:12px;letter-spacing:2px">PRETTY GIRLS WHO SERVE NATIONALS</p><h1 style="font-family:Georgia,serif;font-size:40px;line-height:1.05;margin:12px 0">Your application is<br>in screening.</h1></div><div style="padding:32px;border:1px solid #ead5df;border-top:0;background:white"><p>Hi ${escapeHtml(firstName)},</p><p>Your Pretty Girls Who Serve chapter application has moved into <b>national screening</b>.</p><p style="padding:16px;background:#fff0f6"><b>Reference:</b> ${escapeHtml(application.reference_number)}<br><b>Institution:</b> ${escapeHtml(application.institution)}</p><p>During screening, PGWS Nationals is reviewing your application for mission alignment, Christ-centered service, leadership readiness, and the needs of your campus or community. Screening is not final approval and does not guarantee an interview or charter.</p><p>Until you receive written approval from PGWS Nationals, please do not recruit publicly, collect money, open chapter social-media accounts, use PGWS branding, or represent the chapter as approved.</p><p>Stay close to your email. We will contact you if we need additional information or invite you to the next step.</p><p>With love,<br><b>Pretty Girls Who Serve Nationals</b><br>Faith · Purpose · Sisterhood · Service</p></div></div>`;
+  const recipients = [application.founder_email, application.cofounder_email]
+    .map((value) =>
+      String(value || "")
+        .trim()
+        .toLowerCase(),
+    )
+    .filter((value, index, values) => value && values.indexOf(value) === index);
+  for (const recipient of recipients) {
+    const useBridge = Boolean(bridgeUrl && bridgeSecret);
+    const response = await fetch(
+      useBridge ? bridgeUrl : "https://api.resend.com/emails",
+      {
+        method: "POST",
+        headers: {
+          ...(useBridge
+            ? { "x-pgws-mail-bridge-secret": bridgeSecret }
+            : { Authorization: `Bearer ${apiKey}` }),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(
+          useBridge
+            ? { recipient, subject, text, html }
+            : {
+                from:
+                  process.env.PGWS_EMAIL_FROM ||
+                  "Pretty Girls Who Serve <pgws@estherfundsinc.org>",
+                to: [recipient],
+                reply_to: "nationals@estherfundsinc.org",
+                subject,
+                text,
+                html,
+              },
+        ),
+      },
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(
+        error.message ||
+          error.error ||
+          `Screening email failed for ${recipient}.`,
+      );
+    }
+  }
+  return recipients.length;
+}
+
 async function findAuthUser({ userId, email }) {
   if (userId) {
     const response = await fetch(
@@ -100,11 +173,17 @@ async function summary() {
       "pgws_chapter_applications",
       "select=*&order=created_at.desc&limit=500",
     ),
-    dbSelect("pgws_profiles", "select=id,display_name,city_state,chapter_name&limit=1000"),
+    dbSelect(
+      "pgws_profiles",
+      "select=id,display_name,city_state,chapter_name&limit=1000",
+    ),
   ]);
-  const usersResponse = await fetch(`${pgwsUrl}/auth/v1/admin/users?page=1&per_page=1000`, {
-    headers: serviceHeaders(),
-  });
+  const usersResponse = await fetch(
+    `${pgwsUrl}/auth/v1/admin/users?page=1&per_page=1000`,
+    {
+      headers: serviceHeaders(),
+    },
+  );
   const usersBody = await usersResponse.json().catch(() => ({}));
   const authUsers = usersResponse.ok ? usersBody.users || [] : [];
   const profilesById = new Map(profiles.map((item) => [item.id, item]));
@@ -309,9 +388,30 @@ async function postAction(req, user, body) {
       beforeState: before,
       afterState: rows?.[0],
     });
+    let screeningEmailCount = 0;
+    const priorScreeningEmails =
+      status === "screening"
+        ? await dbSelect(
+            "pgws_audit_log",
+            `select=id&action=eq.chapter_application.screening_email_sent&entity_id=eq.${encodeURIComponent(applicationId)}&limit=1`,
+          )
+        : [];
+    if (status === "screening" && !priorScreeningEmails?.length) {
+      screeningEmailCount = await sendChapterScreeningEmail(
+        rows?.[0] || before,
+      );
+      await recordAudit({
+        actorUserId: user.id,
+        actorType: "admin",
+        action: "chapter_application.screening_email_sent",
+        entityType: "pgws_chapter_application",
+        entityId: applicationId,
+        afterState: { recipients: screeningEmailCount },
+      });
+    }
     return {
       application: rows?.[0],
-      message: `Chapter application is now ${status.replaceAll("_", " ")}.`,
+      message: `Chapter application is now ${status.replaceAll("_", " ")}.${screeningEmailCount ? ` Screening email sent to ${screeningEmailCount} applicant contact${screeningEmailCount === 1 ? "" : "s"}.` : ""}`,
     };
   }
   if (action === "resend_welcome") {
