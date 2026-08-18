@@ -320,7 +320,10 @@
     const { error } = await client.auth.signInWithOtp({
       email,
       options: {
-        shouldCreateUser: false,
+        // The national administrator may be using this passwordless entrance
+        // for the first time. Creating an auth identity does not grant admin
+        // access; the server still enforces PGWS_ADMIN_EMAILS on every request.
+        shouldCreateUser: true,
         emailRedirectTo: `${location.origin}/pgws-admin`,
       },
     });
