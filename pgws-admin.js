@@ -307,6 +307,29 @@
     if (error) return message("adminAuthMessage", error.message, true);
     await load();
   });
+  $("adminMagicLink").addEventListener("click", async () => {
+    const email = $("adminEmail").value.trim().toLowerCase();
+    if (!email) {
+      return message(
+        "adminAuthMessage",
+        "Enter your national administrator email first.",
+        true,
+      );
+    }
+    message("adminAuthMessage", "Sending your secure administrator link…");
+    const { error } = await client.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: `${location.origin}/pgws-admin`,
+      },
+    });
+    if (error) return message("adminAuthMessage", error.message, true);
+    message(
+      "adminAuthMessage",
+      "Secure link sent. Check your inbox and spam, then use the newest PGWS sign-in email.",
+    );
+  });
   $("adminSignOut").addEventListener("click", async () => {
     await client.auth.signOut();
     location.reload();
