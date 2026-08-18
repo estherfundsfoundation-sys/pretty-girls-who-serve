@@ -18,6 +18,31 @@
   </head>
   <body>
     <a class="skip" href="#portalMain">Skip to portal content</a>
+    <section
+      class="sister-welcome"
+      id="sisterWelcome"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="sisterWelcomeTitle"
+      hidden
+    >
+      <div class="sister-confetti" id="sisterConfetti" aria-hidden="true"></div>
+      <div class="sister-welcome-card">
+        <div class="sister-crown" aria-hidden="true">♕</div>
+        <p class="eyebrow">YOUR SURPRISE SISTER ACCEPTANCE</p>
+        <h1 id="sisterWelcomeTitle">
+          Welcome, Sister<br /><em id="sisterWelcomeName">Beautiful</em>!
+        </h1>
+        <p>
+          Your $20 lifetime membership is our gift to you. You are officially
+          part of our Christ-centered national sisterhood.
+        </p>
+        <strong>SISTERS 4L! ♡</strong>
+        <button class="primary-button" id="enterSisterPortal" type="button">
+          Enter my P31 Portal →
+        </button>
+      </div>
+    </section>
     <header class="p31-header">
       <a class="p31-brand" href="/"
         ><span>PG</span><b>PRETTY GIRLS <i>who serve</i></b></a
@@ -203,7 +228,10 @@
       <section class="portal-shell" id="portalShell" hidden>
         <aside class="portal-sidebar">
           <div class="member-mini">
-            <div id="miniInitials">PG</div>
+            <div id="miniPortrait">
+              <img id="miniAvatar" alt="" hidden />
+              <span id="miniInitials">PG</span>
+            </div>
             <p>WELCOME HOME</p>
             <strong id="miniName">PGWS Sister</strong
             ><small id="miniMemberId">Membership loading</small>
@@ -364,6 +392,20 @@
               </div>
             </div>
             <form class="portal-form" id="profileForm">
+              <label class="wide profile-photo-field"
+                >Profile photo <span>required · JPG, PNG, or WebP</span>
+                <div class="profile-photo-row">
+                  <div class="profile-photo-preview" id="profilePhotoPreview">
+                    <img id="profilePhotoImage" alt="Your PGWS profile photo" hidden />
+                    <b id="profilePhotoInitials">PG</b>
+                  </div>
+                  <input
+                    id="profilePhoto"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                  />
+                </div>
+              </label>
               <label
                 >First name or sister name<input
                   id="profileName"
