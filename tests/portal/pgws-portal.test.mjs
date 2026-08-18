@@ -79,6 +79,20 @@ test("member and admin responses are non-cacheable and protected", () => {
   assert.match(read("api/pgws/admin.js"), /requireAdmin/);
 });
 
+test("nationals admin uses a one-time code and secure cookie session", () => {
+  const html = read("pgws-admin.html");
+  const client = read("pgws-admin.js");
+  const login = read("api/pgws/admin-login.js");
+  const verify = read("api/pgws/admin-verify.js");
+  const auth = read("api/_lib/pgws.js");
+  assert.match(html, /Six-digit code/);
+  assert.doesNotMatch(html, /adminPassword/);
+  assert.match(client, /admin-verify/);
+  assert.match(login, /randomInt/);
+  assert.match(verify, /timingSafeEqual/);
+  assert.match(auth, /HttpOnly; Secure; SameSite=Lax/);
+});
+
 test("private journal remains separate from paid membership records", () => {
   const migration = read("supabase/migrations/20260730100000_mypgws_membership_foundation.sql");
   const membership = read("api/_lib/membership.js");

@@ -40,17 +40,14 @@
               type="email"
               required
               autocomplete="email" /></label
-          ><label
-            >Password<input
-              id="adminPassword"
-              type="password"
-              required
-              autocomplete="current-password" /></label
-          ><button>Enter administration →</button>
-          <button type="button" id="adminMagicLink" class="button-secondary">
-            Email me a secure admin link
+          ><button type="button" id="adminMagicLink" class="button-secondary">
+            Email my verification code
           </button>
-          <small>No password needed. The secure link is sent only to the administrator email above.</small>
+          <div id="adminCodeStep" hidden>
+            <label>Six-digit code<input id="adminCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" /></label>
+            <button>Verify and enter administration →</button>
+          </div>
+          <small>No password or email link needed. Use the newest six-digit code sent to the authorized national email.</small>
           <p id="adminAuthMessage"></p>
         </form>
       </section>

@@ -45,6 +45,8 @@ async function parse(response) {
 }
 
 export async function getAuthUser(req) {
+  const cookieUser = verifyAdminSessionCookie(req);
+  if (cookieUser) return cookieUser;
   const authorization = String(req.headers.authorization || "");
   if (!authorization.startsWith("Bearer ")) {
     const error = new Error("Please sign in to continue.");
@@ -61,6 +63,51 @@ export async function getAuthUser(req) {
     throw error;
   }
   return { id: user.id, email: String(user.email).trim().toLowerCase(), raw: user };
+}
+
+function adminSessionSecret() {
+  const value = cleanEnvironmentValue(process.env.PGWS_MAIL_BRIDGE_SECRET);
+  if (value.length < 32) throw new Error("PGWS administrator sessions are not configured.");
+  return value;
+}
+
+function decodeCookies(req) {
+  return Object.fromEntries(
+    String(req.headers.cookie || "")
+      .split(";")
+      .map((part) => part.trim().split(/=(.*)/s).slice(0, 2))
+      .filter(([key]) => key),
+  );
+}
+
+export function createAdminSessionCookie(user) {
+  const payload = Buffer.from(JSON.stringify({
+    id: user.id,
+    email: String(user.email).trim().toLowerCase(),
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 8,
+  })).toString("base64url");
+  const signature = createHmac("sha256", adminSessionSecret()).update(payload).digest("base64url");
+  return `pgws_admin_session=${payload}.${signature}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`;
+}
+
+export function clearAdminSessionCookie() {
+  return "pgws_admin_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0";
+}
+
+function verifyAdminSessionCookie(req) {
+  const token = decodeURIComponent(decodeCookies(req).pgws_admin_session || "");
+  const [payload, supplied] = token.split(".");
+  if (!payload || !supplied) return null;
+  try {
+    const expected = createHmac("sha256", adminSessionSecret()).update(payload).digest();
+    const actual = Buffer.from(supplied, "base64url");
+    if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return null;
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    if (!data.id || !data.email || Number(data.exp) < Math.floor(Date.now() / 1000)) return null;
+    return { id: data.id, email: String(data.email).toLowerCase(), raw: data };
+  } catch {
+    return null;
+  }
 }
 
 export async function dbSelect(table, query = "", options = {}) {

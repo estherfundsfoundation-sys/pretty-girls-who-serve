@@ -35,6 +35,7 @@
         )
       : "—";
   let data = null;
+  let adminRequestId = "";
 
   async function token() {
     return (await client.auth.getSession()).data.session?.access_token || "";
@@ -44,7 +45,7 @@
       ...options,
       headers: {
         ...(options.body ? { "Content-Type": "application/json" } : {}),
-        Authorization: `Bearer ${await token()}`,
+        ...((await token()) ? { Authorization: `Bearer ${await token()}` } : {}),
       },
     });
     const body = await response.json().catch(() => ({}));
@@ -300,12 +301,14 @@
   }
   $("adminAuthForm").addEventListener("submit", async (event) => {
     event.preventDefault();
-    const { error } = await client.auth.signInWithPassword({
-      email: $("adminEmail").value,
-      password: $("adminPassword").value,
-    });
-    if (error) return message("adminAuthMessage", error.message, true);
-    await load();
+    const code = $("adminCode").value.trim();
+    if (!adminRequestId || !/^\d{6}$/.test(code)) return message("adminAuthMessage", "Enter the six-digit code from your newest email.", true);
+    try {
+      const response = await fetch("/api/pgws/admin-verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: $("adminEmail").value.trim().toLowerCase(), code, requestId: adminRequestId }) });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error || "The verification code could not be confirmed.");
+      await load();
+    } catch (error) { message("adminAuthMessage", error.message, true); }
   });
   $("adminMagicLink").addEventListener("click", async () => {
     const email = $("adminEmail").value.trim().toLowerCase();
@@ -325,12 +328,16 @@
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error || "The secure login email could not be sent.");
+      adminRequestId = body.requestId;
+      show("adminCodeStep", true);
+      $("adminCode").focus();
       message("adminAuthMessage", body.message);
     } catch (error) {
       message("adminAuthMessage", error.message, true);
     }
   });
   $("adminSignOut").addEventListener("click", async () => {
+    await fetch("/api/pgws/admin-logout", { method: "POST" }).catch(() => null);
     await client.auth.signOut();
     location.reload();
   });

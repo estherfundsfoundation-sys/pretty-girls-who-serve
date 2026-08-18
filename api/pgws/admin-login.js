@@ -1,4 +1,5 @@
-import { cleanText, json, methodNotAllowed, publicOrigin, readJson } from "../_lib/http.js";
+import { createHash, randomInt, randomUUID } from "node:crypto";
+import { cleanText, json, methodNotAllowed, readJson } from "../_lib/http.js";
 import { dbSelect, pgwsUrl, recordAudit } from "../_lib/pgws.js";
 
 const ACTION = "pgws_admin_login_link_requested";
@@ -32,7 +33,7 @@ async function recentlyRequested(email) {
   return Boolean(rows?.length);
 }
 
-async function generateLink(email, redirectTo) {
+async function ensureAuthUser(email) {
   const response = await fetch(`${pgwsUrl}/auth/v1/admin/generate_link`, {
     method: "POST",
     headers: serviceHeaders(),
@@ -40,24 +41,24 @@ async function generateLink(email, redirectTo) {
       type: "magiclink",
       email,
       data: { pgws_role: "national_admin" },
-      redirect_to: redirectTo,
+      redirect_to: "https://prettygirlswhoserve.org/pgws-admin",
     }),
   });
   const body = await parse(response, "A secure administrator link could not be created.");
-  const link = body?.properties?.action_link || body?.action_link;
-  if (!link) throw new Error("The authentication service did not return a secure link.");
-  return link;
+  const user = body?.user || body?.properties?.user;
+  if (!user?.id) throw new Error("The authentication service did not return an administrator account.");
+  return user;
 }
 
-async function sendLink(email, link) {
+async function sendCode(email, code) {
   const key = String(process.env.RESEND_API_KEY || "").trim();
   const bridgeUrl = String(process.env.MISS_PGWS_MAIL_BRIDGE_URL || "").trim();
   const bridgeSecret = String(process.env.PGWS_MAIL_BRIDGE_SECRET || "").trim();
   const useBridge = Boolean(bridgeUrl && bridgeSecret);
   if (!key && !useBridge) throw new Error("PGWS email delivery is not configured.");
-  const subject = "Your secure PGWS Nationals administration link";
-  const text = `Use this private, one-time link to enter PGWS Nationals Administration:\n\n${link}\n\nIf you did not request it, ignore this email. Never share this link.`;
-  const html = `<div style="max-width:620px;margin:auto;padding:32px;font-family:Arial,sans-serif;color:#21131a"><p style="color:#a13e68;font-weight:700;letter-spacing:1px">PRETTY GIRLS WHO SERVE</p><h1 style="font-family:Georgia,serif">PGWS Nationals Administration</h1><p>Your private, one-time administrator link is ready.</p><p><a href="${link}" style="display:inline-block;background:#21131a;color:#fff;padding:14px 20px;border-radius:10px;text-decoration:none;font-weight:700">Enter administration →</a></p><p style="font-size:13px;color:#715764">If you did not request this link, ignore this email. Never share the link.</p></div>`;
+  const subject = "Your PGWS Nationals verification code";
+  const text = `Your one-time PGWS Nationals Administration code is ${code}. It expires in 10 minutes. Never share this code.`;
+  const html = `<div style="max-width:620px;margin:auto;padding:32px;font-family:Arial,sans-serif;color:#21131a"><p style="color:#a13e68;font-weight:700;letter-spacing:1px">PRETTY GIRLS WHO SERVE</p><h1 style="font-family:Georgia,serif">PGWS Nationals Administration</h1><p>Enter this private, one-time code on the administrator sign-in screen:</p><p style="font-size:34px;font-weight:800;letter-spacing:8px">${code}</p><p style="font-size:13px;color:#715764">The code expires in 10 minutes. If you did not request it, ignore this email. Never share the code.</p></div>`;
   const response = await fetch(useBridge ? bridgeUrl : "https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -93,10 +94,13 @@ export default async function handler(req, res) {
     if (await recentlyRequested(email)) {
       return json(res, 429, { error: "A secure link was already sent. Please wait one minute before requesting another." });
     }
-    const link = await generateLink(email, `${publicOrigin(req)}/pgws-admin`);
-    await sendLink(email, link);
-    await recordAudit({ action: ACTION, entityType: "admin_auth", afterState: { email } });
-    return json(res, 200, { message: "Secure link sent. Check your inbox and spam." });
+    const user = await ensureAuthUser(email);
+    const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
+    const requestId = randomUUID();
+    const codeHash = createHash("sha256").update(`${requestId}:${email}:${code}`).digest("hex");
+    await sendCode(email, code);
+    await recordAudit({ action: ACTION, entityType: "admin_auth", entityId: requestId, afterState: { email, user_id: user.id, code_hash: codeHash, expires_at: new Date(Date.now() + 600_000).toISOString() } });
+    return json(res, 200, { requestId, message: "Verification code sent. Check your inbox and spam." });
   } catch (error) {
     return json(res, error.status || 500, { error: error.message || "The secure login email could not be sent." });
   }
