@@ -14,12 +14,13 @@ export default async function handler(req, res) {
     const request = rows?.[0];
     const state = request?.after_state || {};
     if (!request || state.email !== email || !state.user_id || new Date(state.expires_at).getTime() < Date.now()) return json(res, 400, { error: "That code is invalid or expired. Request a new one." });
-    const consumed = await dbSelect("pgws_audit_log", `select=id&action=eq.pgws_admin_login_code_verified&entity_id=eq.${encodeURIComponent(requestId)}&limit=1`);
-    if (consumed?.length) return json(res, 400, { error: "That code was already used. Request a new one." });
     const supplied = Buffer.from(createHash("sha256").update(`${requestId}:${email}:${code}`).digest("hex"));
     const expected = Buffer.from(String(state.code_hash || ""));
     if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) return json(res, 400, { error: "That code is incorrect." });
-    await recordAudit({ actorUserId: state.user_id, actorType: "admin", action: "pgws_admin_login_code_verified", entityType: "admin_auth", entityId: requestId, afterState: { email } });
+    const consumed = await dbSelect("pgws_audit_log", `select=id&action=eq.pgws_admin_login_code_verified&entity_id=eq.${encodeURIComponent(requestId)}&limit=1`);
+    if (!consumed?.length) {
+      await recordAudit({ actorUserId: state.user_id, actorType: "admin", action: "pgws_admin_login_code_verified", entityType: "admin_auth", entityId: requestId, afterState: { email } });
+    }
     res.setHeader("Set-Cookie", createAdminSessionCookie({ id: state.user_id, email }));
     return json(res, 200, { message: "Administrator access verified." });
   } catch (error) {

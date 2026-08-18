@@ -307,7 +307,7 @@
       const response = await fetch("/api/pgws/admin-verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: $("adminEmail").value.trim().toLowerCase(), code, requestId: adminRequestId }) });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error || "The verification code could not be confirmed.");
-      await load();
+      location.replace("/pgws-admin");
     } catch (error) { message("adminAuthMessage", error.message, true); }
   });
   $("adminMagicLink").addEventListener("click", async () => {
