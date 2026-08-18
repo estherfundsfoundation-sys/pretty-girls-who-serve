@@ -68,6 +68,7 @@ export async function activateMembership({
   actorUserId = null,
   requestId = null,
   appUrl,
+  sendWelcome = true,
 }) {
   const now = new Date().toISOString();
   let membership = await getMembership(user.id);
@@ -130,20 +131,22 @@ export async function activateMembership({
     afterState: membership,
     requestId,
   });
-  await sendMembershipWelcome({
-    user,
-    membership,
-    myEffUrl: myEff.url,
-    appUrl,
-  }).catch(async (error) => {
-    await recordAudit({
-      actorType: "system",
-      action: "membership.welcome_email_failed",
-      entityType: "pgws_membership",
-      entityId: membership.id,
-      afterState: { message: error.message },
+  if (sendWelcome) {
+    await sendMembershipWelcome({
+      user,
+      membership,
+      myEffUrl: myEff.url,
+      appUrl,
+    }).catch(async (error) => {
+      await recordAudit({
+        actorType: "system",
+        action: "membership.welcome_email_failed",
+        entityType: "pgws_membership",
+        entityId: membership.id,
+        afterState: { message: error.message },
+      });
     });
-  });
+  }
   return { membership, myEff };
 }
 

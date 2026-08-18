@@ -52,6 +52,7 @@
   let session = null;
   let authIntent = null;
   let legacyClaimInFlight = false;
+  let sisterWelcomeShown = false;
   const validPanels = new Set([
     "home",
     "membership",
@@ -124,6 +125,68 @@
       session?.user?.email?.split("@")[0] ||
       "Sister";
     return String(value).trim() || "Sister";
+  }
+
+  function currentAvatarUrl() {
+    return String(session?.user?.user_metadata?.avatar_url || "").trim();
+  }
+
+  function renderAvatar(displayName, avatarUrl = currentAvatarUrl()) {
+    text("miniInitials", initials(displayName));
+    text("profilePhotoInitials", initials(displayName));
+    for (const imageId of ["miniAvatar", "profilePhotoImage"]) {
+      const image = $(imageId);
+      if (!image) continue;
+      const fallback = imageId === "miniAvatar" ? $("miniInitials") : $("profilePhotoInitials");
+      if (!avatarUrl) {
+        image.hidden = true;
+        if (fallback) fallback.hidden = false;
+        image.removeAttribute("src");
+        continue;
+      }
+      image.onload = () => {
+        image.hidden = false;
+        if (fallback) fallback.hidden = true;
+      };
+      image.onerror = () => {
+        image.hidden = true;
+        if (fallback) fallback.hidden = false;
+      };
+      image.src = avatarUrl;
+    }
+  }
+
+  function showSurpriseSisterWelcome(data, displayName) {
+    const parameters = new URLSearchParams(location.search);
+    if (
+      sisterWelcomeShown ||
+      parameters.get("welcome") !== "sister" ||
+      data.membership?.source !== "complimentary"
+    )
+      return;
+    sisterWelcomeShown = true;
+    text("sisterWelcomeName", displayName.split(/\s+/)[0] || "Beautiful");
+    const confetti = $("sisterConfetti");
+    if (confetti && !confetti.childElementCount) {
+      const colors = ["#f7a9ca", "#ffffff", "#f3d8a6", "#d35f91"];
+      for (let index = 0; index < 38; index += 1) {
+        const piece = document.createElement("i");
+        piece.style.setProperty("--x", `${(index * 37) % 100}%`);
+        piece.style.setProperty("--delay", `${(index % 9) * 0.08}s`);
+        piece.style.setProperty("--spin", `${180 + ((index * 29) % 360)}deg`);
+        piece.style.setProperty("--confetti", colors[index % colors.length]);
+        confetti.append(piece);
+      }
+    }
+    show("sisterWelcome", true);
+    requestAnimationFrame(() => $("sisterWelcome")?.classList.add("is-open"));
+    $("enterSisterPortal").onclick = () => {
+      $("sisterWelcome")?.classList.remove("is-open");
+      window.setTimeout(() => show("sisterWelcome", false), 280);
+    };
+    parameters.delete("welcome");
+    const query = parameters.toString();
+    history.replaceState({}, "", `${location.pathname}${query ? `?${query}` : ""}${location.hash}`);
   }
 
   function setAuthIntent(intent) {
@@ -218,7 +281,7 @@
       "sister";
     text("welcomeName", displayName.split(" ")[0]);
     text("miniName", displayName);
-    text("miniInitials", initials(displayName));
+    renderAvatar(displayName);
     text("miniMemberId", data.membership.membership_id);
     text("cardName", displayName);
     text("cardMemberId", data.membership.membership_id);
@@ -251,8 +314,10 @@
     $("sidebarMyEff").href =
       data.myEff?.activationUrl || "https://my.estherfundsfoundation.org";
     show("adminSwitch", Boolean(data.admin));
+    showSurpriseSisterWelcome(data, displayName);
     const onboardingComplete = data.progress?.onboarding_status === "complete";
     $("nextSteps").innerHTML = [
+      currentAvatarUrl() ? null : "<li>Upload your required PGWS profile photo.</li>",
       profile.display_name ? null : "<li>Complete your PGWS profile.</li>",
       onboardingComplete ? null : "<li>Begin your P31 member onboarding.</li>",
       data.myEff?.status === "linked"
@@ -642,6 +707,23 @@
   $("profileForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
+      const photo = $("profilePhoto").files?.[0];
+      if (!currentAvatarUrl() && !photo)
+        throw new Error("Please add your required PGWS profile photo before saving.");
+      if (photo) {
+        if (photo.size > 5_000_000)
+          throw new Error("Your profile photo must be smaller than 5 MB.");
+        const uploaded = await api("/api/pgws/avatar", {
+          method: "POST",
+          body: photo,
+          headers: { "Content-Type": photo.type },
+        });
+        session.user.user_metadata = {
+          ...(session.user.user_metadata || {}),
+          avatar_url: uploaded.avatarUrl,
+        };
+        renderAvatar($("profileName").value, uploaded.avatarUrl);
+      }
       const result = await api("/api/pgws/profile", {
         method: "POST",
         body: JSON.stringify({
@@ -660,6 +742,25 @@
     } catch (error) {
       message("profileMessage", error.message, true);
     }
+  });
+  $("profilePhoto").addEventListener("change", () => {
+    const photo = $("profilePhoto").files?.[0];
+    if (!photo) return renderAvatar($("profileName").value || memberName());
+    if (!photo.type.match(/^image\/(jpeg|png|webp)$/) || photo.size > 5_000_000) {
+      $("profilePhoto").value = "";
+      return message(
+        "profileMessage",
+        "Choose a JPG, PNG, or WebP photo smaller than 5 MB.",
+        true,
+      );
+    }
+    const previewUrl = URL.createObjectURL(photo);
+    renderAvatar($("profileName").value || memberName(), previewUrl);
+    $("profilePhotoImage").addEventListener(
+      "load",
+      () => URL.revokeObjectURL(previewUrl),
+      { once: true },
+    );
   });
   $("serviceForm").addEventListener("submit", async (event) => {
     event.preventDefault();
