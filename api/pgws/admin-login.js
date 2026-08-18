@@ -45,9 +45,17 @@ async function ensureAuthUser(email) {
     }),
   });
   const body = await parse(response, "A secure administrator link could not be created.");
-  const user = body?.user || body?.properties?.user;
-  if (!user?.id) throw new Error("The authentication service did not return an administrator account.");
-  return user;
+  const returnedUser = body?.user || body?.properties?.user;
+  if (returnedUser?.id) return returnedUser;
+  const usersResponse = await fetch(`${pgwsUrl}/auth/v1/admin/users?page=1&per_page=1000`, {
+    headers: serviceHeaders(),
+  });
+  const usersBody = await parse(usersResponse, "The administrator account could not be located.");
+  const matched = usersBody?.users?.find(
+    (item) => String(item.email || "").trim().toLowerCase() === email,
+  );
+  if (!matched?.id) throw new Error("The administrator account could not be located after enrollment.");
+  return matched;
 }
 
 async function sendCode(email, code) {
