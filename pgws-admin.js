@@ -256,7 +256,7 @@
       members,
       "No members match this search.",
       (item) =>
-        `<article><div><h3>${escape(item.membership_id)}</h3><p>User ${escape(item.user_id)}</p></div><div><strong>${escape(pretty(item.source))}</strong><small>${escape(pretty(item.payment_status))} · joined ${escape(date(item.joined_at))}</small></div><div class="actions"><span class="status">${escape(pretty(item.status))}</span>${item.status === "active" ? `<button class="danger" data-member-action="suspended" data-membership-id="${escape(item.id)}">Suspend</button>` : `<button data-member-action="active" data-membership-id="${escape(item.id)}">Activate</button>`}</div></article>`,
+        `<article><div><h3>${escape(item.display_name || item.email || item.membership_id)}</h3><p>${escape(item.email || "Email unavailable")} · ${escape(item.membership_id)}${item.chapter_name ? ` · ${escape(item.chapter_name)}` : ""}${item.city_state ? `<br>${escape(item.city_state)}` : ""}</p></div><div><strong>${escape(pretty(item.source))}</strong><small>${escape(pretty(item.payment_status))} · joined ${escape(date(item.joined_at))}</small></div><div class="actions"><span class="status">${escape(pretty(item.status))}</span>${item.status === "active" ? `<button class="danger" data-member-action="suspended" data-membership-id="${escape(item.id)}">Suspend</button>` : `<button data-member-action="active" data-membership-id="${escape(item.id)}">Activate</button>`}</div></article>`,
     );
   }
   async function load() {

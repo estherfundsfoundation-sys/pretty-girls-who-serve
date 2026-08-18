@@ -68,6 +68,7 @@ async function summary() {
     support,
     chapters,
     chapterApplications,
+    profiles,
   ] = await Promise.all([
     dbSelect("pgws_memberships", "select=*&order=created_at.desc&limit=500"),
     dbSelect(
@@ -99,7 +100,22 @@ async function summary() {
       "pgws_chapter_applications",
       "select=*&order=created_at.desc&limit=500",
     ),
+    dbSelect("pgws_profiles", "select=id,display_name,city_state,chapter_name&limit=1000"),
   ]);
+  const usersResponse = await fetch(`${pgwsUrl}/auth/v1/admin/users?page=1&per_page=1000`, {
+    headers: serviceHeaders(),
+  });
+  const usersBody = await usersResponse.json().catch(() => ({}));
+  const authUsers = usersResponse.ok ? usersBody.users || [] : [];
+  const profilesById = new Map(profiles.map((item) => [item.id, item]));
+  const usersById = new Map(authUsers.map((item) => [item.id, item]));
+  const memberDirectory = members.map((item) => ({
+    ...item,
+    email: usersById.get(item.user_id)?.email || "",
+    display_name: profilesById.get(item.user_id)?.display_name || "",
+    city_state: profilesById.get(item.user_id)?.city_state || "",
+    chapter_name: profilesById.get(item.user_id)?.chapter_name || "",
+  }));
   return {
     metrics: {
       members: members.length,
@@ -129,7 +145,7 @@ async function summary() {
       ).length,
       generatedAt: now,
     },
-    members,
+    members: memberDirectory,
     payments,
     stripeEvents: events,
     legacy,
