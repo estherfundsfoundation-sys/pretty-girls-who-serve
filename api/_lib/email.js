@@ -1,6 +1,7 @@
 import { dbInsert, dbPatch, dbSelect } from "./pgws.js";
 
 const surpriseSisterTemplate = "pgws_surprise_sister_induction_2027_v1";
+const alumniAcceptanceTemplate = "pgws_alumni_acceptance_v1";
 
 function emailFrom() {
   return process.env.PGWS_EMAIL_FROM || "Pretty Girls Who Serve <pgws@estherfundsinc.org>";
@@ -197,6 +198,120 @@ export async function sendSurpriseSisterInduction(input) {
       provider_message_id: body.id || null,
       sent_at: new Date().toISOString(),
     },
+    { returning: false },
+  );
+  return { status: "sent", id: body.id };
+}
+
+export function alumniAcceptanceMessage({
+  user,
+  profile,
+  membership,
+  myEffUrl,
+  accessUrl,
+  appUrl,
+}) {
+  const fullName = String(profile?.fullName || "").trim() || "Beautiful Sister";
+  const firstName = fullName.split(/\s+/)[0] || "Beautiful";
+  const portalUrl = `${String(appUrl || "https://prettygirlswhoserve.org").replace(/\/+$/, "")}/p31`;
+  const subject = `${firstName}, welcome home — your PGWS Alumni Membership is active 💗`;
+  const text = `Dear ${firstName},
+
+OFFICIAL ALUMNI MEMBERSHIP ACCEPTANCE
+
+Congratulations! Pretty Girls Who Serve Nationals is honored to officially welcome you as a complimentary lifetime PGWS Alumni Member.
+
+As an alumni sister, you remain part of our national Christ-centered sisterhood of faith, purpose, service, leadership, and genuine fellowship. Your wisdom, testimony, and continued connection help the next generation of sisters become who God has called them to be.
+
+PGWS Membership ID: ${membership.membership_id}
+Membership classification: Alumni Member
+
+Accept your membership and enter the P31 Portal:
+${accessUrl}
+
+Your complimentary lifetime membership includes the P31 Portal, alumni sisterhood access, faith and leadership resources, service opportunities, a digital membership identity, and included Esther Funds Foundation national membership.
+
+Connect your included MyEFF membership:
+${myEffUrl}
+
+Welcome home, ${firstName}. From this day forward: SISTERS 4L!
+
+With so much love,
+Shayna Vincent
+Founder, Pretty Girls Who Serve
+
+If your secure link expires, visit ${portalUrl} and request a new secure email sign-in link.`;
+  const html = `<!doctype html><html><body style="margin:0;background:#fff5f8;font-family:Arial,sans-serif;color:#35212b"><div style="max-width:680px;margin:auto;padding:34px 16px"><div style="background:#24141d;color:white;border-radius:28px 28px 0 0;padding:40px 34px;text-align:center"><p style="font-size:12px;letter-spacing:3px;margin:0;color:#f7b7d1">PRETTY GIRLS WHO SERVE · ALUMNI SISTERHOOD</p><h1 style="font-family:Georgia,serif;font-size:44px;line-height:1.04;margin:18px 0 12px">Welcome home,<br>alumni sister.</h1><p style="font-size:21px;color:#ffd8e8;margin:0">SISTERS 4L! 💗</p></div><div style="background:white;border:1px solid #efd3df;border-top:0;padding:36px 34px"><p style="font-family:Georgia,serif;font-size:22px">Dear ${escapeHtml(firstName)},</p><p style="font-size:12px;letter-spacing:2px;color:#a13e68;font-weight:bold">OFFICIAL ALUMNI MEMBERSHIP ACCEPTANCE</p><p style="font-size:16px;line-height:1.75">Congratulations! Pretty Girls Who Serve Nationals is honored to officially welcome you as a <b>complimentary lifetime PGWS Alumni Member</b>.</p><p style="font-size:16px;line-height:1.75">As an alumni sister, you remain part of our national Christ-centered sisterhood of faith, purpose, service, leadership, and genuine fellowship. Your wisdom, testimony, and continued connection help the next generation of sisters become who God has called them to be.</p><div style="margin:30px 0;padding:24px;background:#fff0f6;border-left:5px solid #c55787"><p style="font-size:12px;letter-spacing:2px;color:#8d315d;font-weight:bold;margin-top:0">OFFICIAL SISTERHOOD INDUCTION</p><h2 style="font-family:Georgia,serif;font-size:30px;margin:8px 0">Welcome home, ${escapeHtml(firstName)}.</h2><p style="font-size:18px;margin-bottom:0"><b>From this day forward: SISTERS 4L!</b></p></div><table role="presentation" style="width:100%;border-collapse:collapse;margin:24px 0;font-size:15px"><tr><td style="padding:10px;border-bottom:1px solid #efd3df;color:#785d69">Membership ID</td><td style="padding:10px;border-bottom:1px solid #efd3df;font-weight:bold;text-align:right">${escapeHtml(membership.membership_id)}</td></tr><tr><td style="padding:10px;color:#785d69">Membership classification</td><td style="padding:10px;font-weight:bold;text-align:right">Alumni Member</td></tr></table><div style="text-align:center;margin:30px 0"><a href="${escapeHtml(accessUrl)}" style="display:inline-block;background:#24141d;color:white;text-decoration:none;padding:17px 25px;border-radius:999px;font-weight:bold">Accept &amp; enter my P31 Portal →</a></div><p style="font-size:15px;line-height:1.7">Your complimentary lifetime membership includes the P31 Portal, alumni sisterhood access, faith and leadership resources, service opportunities, a digital membership identity, and included Esther Funds Foundation national membership.</p><p><a href="${escapeHtml(myEffUrl)}" style="color:#a13e68;font-weight:bold">Connect my included MyEFF membership →</a></p><hr style="border:0;border-top:1px solid #efd3df;margin:30px 0"><p style="font-family:Georgia,serif;font-size:19px;line-height:1.55">With so much love,<br><b>Shayna Vincent</b><br><span style="font-family:Arial,sans-serif;font-size:13px;color:#745c67">Founder, Pretty Girls Who Serve</span></p><p style="font-size:12px;line-height:1.6;color:#745c67">If your secure access link expires, visit <a href="${escapeHtml(portalUrl)}" style="color:#a13e68">the P31 Portal</a>, enter this email address, and request a new secure sign-in link. Never share passwords or verification codes.</p></div></div></body></html>`;
+  return { subject, text, html, recipient: user.email.trim().toLowerCase() };
+}
+
+export async function sendAlumniAcceptance(input) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const bridgeUrl = String(process.env.MISS_PGWS_MAIL_BRIDGE_URL || "").trim();
+  const bridgeSecret = String(process.env.PGWS_MAIL_BRIDGE_SECRET || "").trim();
+  if (!apiKey && !(bridgeUrl && bridgeSecret))
+    return { status: "skipped", reason: "Transactional email is not configured" };
+  const message = alumniAcceptanceMessage(input);
+  const existing = await dbSelect(
+    "pgws_email_deliveries",
+    `select=*&membership_id=eq.${encodeURIComponent(input.membership.id)}&template_key=eq.${alumniAcceptanceTemplate}&recipient_email=eq.${encodeURIComponent(message.recipient)}&limit=1`,
+  );
+  if (existing?.[0]?.status === "sent") return { status: "duplicate" };
+  let delivery = existing?.[0];
+  if (delivery) {
+    const rows = await dbPatch(
+      "pgws_email_deliveries",
+      `id=eq.${delivery.id}`,
+      { status: "queued", error_message: null },
+    );
+    delivery = rows?.[0] || delivery;
+  } else {
+    const rows = await dbInsert("pgws_email_deliveries", {
+      user_id: input.user.id,
+      membership_id: input.membership.id,
+      template_key: alumniAcceptanceTemplate,
+      recipient_email: message.recipient,
+      status: "queued",
+    });
+    delivery = rows?.[0];
+  }
+  if (!delivery) return { status: "duplicate" };
+  const useBridge = Boolean(bridgeUrl && bridgeSecret);
+  const response = await fetch(useBridge ? bridgeUrl : "https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      ...(useBridge
+        ? { "x-pgws-mail-bridge-secret": bridgeSecret }
+        : { Authorization: `Bearer ${apiKey}` }),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(
+      useBridge
+        ? { recipient: message.recipient, subject: message.subject, text: message.text, html: message.html }
+        : {
+            from: emailFrom(),
+            to: [message.recipient],
+            reply_to: "nationals@estherfundsinc.org",
+            subject: message.subject,
+            text: message.text,
+            html: message.html,
+          },
+    ),
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    await dbPatch(
+      "pgws_email_deliveries",
+      `id=eq.${delivery.id}`,
+      { status: "failed", error_message: body?.message || body?.error || "Email provider rejected the message." },
+      { returning: false },
+    );
+    throw new Error(body?.message || body?.error || "The alumni acceptance email could not be sent.");
+  }
+  await dbPatch(
+    "pgws_email_deliveries",
+    `id=eq.${delivery.id}`,
+    { status: "sent", provider_message_id: body.id || null, sent_at: new Date().toISOString() },
     { returning: false },
   );
   return { status: "sent", id: body.id };

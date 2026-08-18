@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { surpriseSisterInductionMessage } from "../../api/_lib/email.js";
+import {
+  alumniAcceptanceMessage,
+  surpriseSisterInductionMessage,
+} from "../../api/_lib/email.js";
 import {
   joinContestantRoster,
   parseEnv,
@@ -39,6 +42,27 @@ test("surprise sister email is a personalized acceptance and induction letter", 
   assert.match(message.text, /does not automatically approve a campus chapter/i);
   assert.match(message.html, /Accept &amp; enter my P31 Portal|Accept & enter my P31 Portal/);
   assert.equal(message.recipient, "avery@example.edu");
+});
+
+test("alumni acceptance is personalized and never labels the member as a contestant", () => {
+  const message = alumniAcceptanceMessage({
+    user: { id: "user-alumni", email: "amanda@example.com" },
+    profile: { fullName: "Amanda Tinker" },
+    membership: { id: "membership-alumni", membership_id: "PGWS-2026-ALUMNI" },
+    myEffUrl: "https://my.estherfundsfoundation.org/join?token=secure",
+    accessUrl: "https://auth.example.org/alumni-magic-link",
+    appUrl: "https://prettygirlswhoserve.org",
+  });
+
+  assert.match(message.subject, /Amanda/);
+  assert.match(message.subject, /Alumni Membership/i);
+  assert.match(message.text, /OFFICIAL ALUMNI MEMBERSHIP ACCEPTANCE/);
+  assert.match(message.text, /complimentary lifetime PGWS Alumni Member/);
+  assert.match(message.text, /SISTERS 4L!/);
+  assert.match(message.text, /PGWS-2026-ALUMNI/);
+  assert.match(message.text, /https:\/\/auth\.example\.org\/alumni-magic-link/);
+  assert.doesNotMatch(message.text, /contestant/i);
+  assert.equal(message.recipient, "amanda@example.com");
 });
 
 test("roster validation joins profiles and rejects unsafe bulk-send input", () => {
