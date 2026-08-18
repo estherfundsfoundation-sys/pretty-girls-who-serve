@@ -317,21 +317,18 @@
       );
     }
     message("adminAuthMessage", "Sending your secure administrator link…");
-    const { error } = await client.auth.signInWithOtp({
-      email,
-      options: {
-        // The national administrator may be using this passwordless entrance
-        // for the first time. Creating an auth identity does not grant admin
-        // access; the server still enforces PGWS_ADMIN_EMAILS on every request.
-        shouldCreateUser: true,
-        emailRedirectTo: `${location.origin}/pgws-admin`,
-      },
-    });
-    if (error) return message("adminAuthMessage", error.message, true);
-    message(
-      "adminAuthMessage",
-      "Secure link sent. Check your inbox and spam, then use the newest PGWS sign-in email.",
-    );
+    try {
+      const response = await fetch("/api/pgws/admin-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error || "The secure login email could not be sent.");
+      message("adminAuthMessage", body.message);
+    } catch (error) {
+      message("adminAuthMessage", error.message, true);
+    }
   });
   $("adminSignOut").addEventListener("click", async () => {
     await client.auth.signOut();
