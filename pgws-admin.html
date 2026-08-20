@@ -123,6 +123,15 @@
               ><button>Grant verified access →</button>
               <p id="complimentaryMessage"></p>
             </form>
+            <form class="quick-form" id="newMemberForm">
+              <h2>Create and induct a new lifetime member</h2>
+              <label>First name<input id="newMemberFirstName" required maxlength="50" /></label>
+              <label>Last name<input id="newMemberLastName" required maxlength="50" /></label>
+              <label>Email<input id="newMemberEmail" type="email" required /></label>
+              <label>Reason<textarea id="newMemberReason" maxlength="500">Complimentary lifetime membership granted by PGWS Nationals.</textarea></label>
+              <button>Create member and send portal welcome →</button>
+              <p id="newMemberMessage"></p>
+            </form>
             <label class="search"
               >Search members<input
                 id="memberSearch"
@@ -315,6 +324,6 @@
     </dialog>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/community-config.js"></script>
-    <script src="/pgws-admin.js?v=member-profiles-1"></script>
+    <script src="/pgws-admin.js?v=new-member-induction-1"></script>
   </body>
 </html>

@@ -443,6 +443,31 @@
       message("complimentaryMessage", error.message, true);
     }
   });
+  $("newMemberForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      message("newMemberMessage", "Creating the secure member account…");
+      const result = await api("/api/pgws/member-acceptance", {
+        method: "POST",
+        body: JSON.stringify({
+          firstName: $("newMemberFirstName").value,
+          lastName: $("newMemberLastName").value,
+          email: $("newMemberEmail").value,
+          reason: $("newMemberReason").value,
+        }),
+      });
+      message(
+        "newMemberMessage",
+        `${result.fullName} is active as ${result.membershipId}. Her portal welcome was requested.`,
+      );
+      await load();
+      switchPanel("members");
+      $("memberSearch").value = result.email;
+      renderMembers();
+    } catch (error) {
+      message("newMemberMessage", error.message, true);
+    }
+  });
   $("reconcileForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
