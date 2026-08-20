@@ -19,13 +19,17 @@ async function parse(response, fallback) {
 }
 
 async function findOrCreateUser(profile, redirectTo) {
-  const usersResponse = await fetch(`${pgwsUrl}/auth/v1/admin/users?page=1&per_page=1000`, {
-    headers: serviceHeaders(),
-  });
-  const usersBody = await parse(usersResponse, "PGWS accounts could not be verified.");
-  let rawUser = (usersBody.users || []).find(
-    (user) => String(user.email || "").trim().toLowerCase() === profile.email,
-  );
+  async function findUser() {
+    const usersResponse = await fetch(`${pgwsUrl}/auth/v1/admin/users?page=1&per_page=1000`, {
+      headers: serviceHeaders(),
+    });
+    const usersBody = await parse(usersResponse, "PGWS accounts could not be verified.");
+    return (usersBody.users || []).find(
+      (user) => String(user.email || "").trim().toLowerCase() === profile.email,
+    );
+  }
+
+  let rawUser = await findUser();
 
   if (!rawUser) {
     const createResponse = await fetch(`${pgwsUrl}/auth/v1/admin/generate_link`, {
@@ -43,7 +47,7 @@ async function findOrCreateUser(profile, redirectTo) {
       }),
     });
     const created = await parse(createResponse, "The PGWS member account could not be created.");
-    rawUser = created?.user || created?.properties?.user;
+    rawUser = created?.user || created?.properties?.user || (await findUser());
   }
 
   if (!rawUser?.id) throw new Error("The PGWS member account could not be verified.");
