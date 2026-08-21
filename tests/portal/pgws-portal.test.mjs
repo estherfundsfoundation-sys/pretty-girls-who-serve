@@ -90,6 +90,13 @@ test("every P31 button id referenced by the portal script exists", () => {
     );
 });
 
+test("existing P31 accounts are not blocked by new-account password length rules", () => {
+  const portal = read("p31.js");
+  assert.match(portal, /if \(!email \|\| !password\)/);
+  assert.match(portal, /if \(authIntent === "join"\) \{\s+if \(password\.length < 8\)/);
+  assert.doesNotMatch(portal, /if \(!email \|\| password\.length < 8\)/);
+});
+
 test("MyEFF connection uses signed server callbacks and separate records", () => {
   const membership = read("api/_lib/membership.js");
   const callback = read("api/pgws/myeff-link.js");

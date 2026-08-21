@@ -546,13 +546,19 @@
     event.preventDefault();
     const email = $("authEmail").value.trim();
     const password = $("authPassword").value;
-    if (!email || password.length < 8)
+    if (!email || !password)
       return message(
         "authMessage",
-        "Enter your email and a password with at least 8 characters.",
+        "Enter your email and password.",
         true,
       );
     if (authIntent === "join") {
+      if (password.length < 8)
+        return message(
+          "authMessage",
+          "Create a password with at least 8 characters.",
+          true,
+        );
       const displayName = $("authName").value.trim();
       if (!displayName)
         return message(
