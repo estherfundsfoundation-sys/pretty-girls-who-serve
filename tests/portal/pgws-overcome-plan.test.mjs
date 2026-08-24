@@ -11,6 +11,9 @@ test("Pretty Girls Overcome is a complete public seven-day plan", () => {
   const plan = context.window.PGWS_OVERCOME_PLAN;
   assert.equal(plan.days.length, 7);
   assert.ok(plan.closingLetter.length >= 5);
+  assert.match(plan.days[0].context, /sons of Korah/);
+  assert.match(plan.days[0].context, /individual poet’s name/);
+  assert.doesNotMatch(plan.days[0].bibleStory.join(" "), /The writer/);
   for (const [index, day] of plan.days.entries()) {
     assert.equal(day.day, index + 1);
     assert.ok(day.story.length >= 3);
