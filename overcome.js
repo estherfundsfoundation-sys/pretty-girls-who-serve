@@ -94,7 +94,7 @@
     $("passage").textContent = item.passage;
     $("keyVerse").textContent = `Key verse: ${item.keyVerse}`;
     $("storyCopy").innerHTML = item.story.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("");
-    $("context").textContent = item.context;
+    $("bibleStory").innerHTML = [item.context, ...(item.bibleStory || [])].map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("");
     $("lesson").textContent = item.lesson;
     $("truths").innerHTML = item.truths.map((truth) => `<li>${escapeHtml(truth)}</li>`).join("");
     $("questionFields").innerHTML = item.questions.map((question,index) => responseTextarea(question,index,saved.answers?.[index])).join("");
@@ -242,6 +242,7 @@
     const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="pretty-girls-overcome-reflections.txt";link.click();URL.revokeObjectURL(link.href);
   }
 
+  $("closingLetter").innerHTML = (plan.closingLetter || []).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("");
   $("beginPlan").addEventListener("click",()=>chooseDay(1));
   $("continuePlan").addEventListener("click",()=>chooseDay(plan.days.find((item)=>!deviceEntries[item.day]?.complete)?.day||7));
   $("saveDay").addEventListener("click",()=>persistDay());

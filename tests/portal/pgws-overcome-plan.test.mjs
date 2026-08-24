@@ -10,9 +10,12 @@ test("Pretty Girls Overcome is a complete public seven-day plan", () => {
   vm.runInNewContext(read("overcome-data.js"), context);
   const plan = context.window.PGWS_OVERCOME_PLAN;
   assert.equal(plan.days.length, 7);
+  assert.ok(plan.closingLetter.length >= 5);
   for (const [index, day] of plan.days.entries()) {
     assert.equal(day.day, index + 1);
     assert.ok(day.story.length >= 3);
+    assert.ok(day.bibleStory.length >= 3);
+    assert.ok(day.bibleStory.join(" ").length >= 700);
     assert.ok(day.questions.length >= 5);
     assert.ok(day.activity.length >= 4);
     assert.match(day.prayer, /Amen\.$/);
@@ -26,6 +29,7 @@ test("the plan is free to read and keeps social features optional", () => {
   assert.match(html, /Sign In Through P31/);
   assert.match(html, /does not replace licensed mental-health treatment/);
   assert.match(html, /call or text <a href="tel:988">988<\/a>/);
+  assert.match(html, /My dearest, prettiest sister/);
 });
 
 test("private responses are device-encrypted and circle sharing is deliberate", () => {

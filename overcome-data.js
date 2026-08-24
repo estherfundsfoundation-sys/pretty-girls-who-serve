@@ -3,6 +3,14 @@ window.PGWS_OVERCOME_PLAN = {
   title: "Pretty Girls Overcome",
   subtitle: "Walking Through Depression With Christ",
   author: "Shayna Vincent",
+  closingLetter: [
+    "My dearest, prettiest sister, what I want to speak into you today is this: you are not the darkness you have walked through. You are not the days you could not get out of bed, the routines you lost, the attention you accepted because you wanted to feel seen, or the questions you were afraid to ask God. You are a woman made in the image of God, still worthy of tenderness, truth, protection, and wise support.",
+    "Please do not measure your faith by how quickly your feelings change. The Holy Spirit is not ashamed of your process. Sometimes His work looks like a powerful moment in prayer. Sometimes it looks like brushing your teeth, opening the curtains, taking prescribed medication, attending therapy, setting a boundary, answering a trusted friend, or choosing to stay for one more day. Small obedience is still obedience. Receiving help is not weak faith.",
+    "Do not isolate yourself to protect an image of being strong. Let safe people know the real version of the story. Ask God for discernment about who can carry the mat with you. A pastor can pray with you, a therapist can help you understand patterns, a doctor can care for your body and mind, and a faithful friend can sit beside you. God’s provision is not less holy because it arrives through people.",
+    "When depression speaks, return to what is true: Jesus knows your name. God sees you without exploiting you. Your questions do not frighten Him. Your body deserves care. Your story is not over. You do not have to call the pain good to believe God can bring purpose from it.",
+    "I am not speaking to you as someone who has never struggled again. I am speaking as your sister—still healing, still learning, still reaching for Christ. If all you can do today is whisper, ‘Jesus, help me,’ let that be your prayer. Keep choosing the next faithful step. Keep receiving grace. Keep becoming the woman God has not abandoned.",
+    "You are still here. You are still loved. And, pretty girl, you are still becoming."
+  ],
   days: [
     {
       day: 1,
@@ -15,6 +23,11 @@ window.PGWS_OVERCOME_PLAN = {
         "Nothing looked completely broken from the outside, so I assumed I was supposed to be fine. But sadness was gathering inside me. I did not yet have the language to call it depression. I only knew that something in me felt heavy. Looking back, I do not believe God was absent from that little girl. I believe He saw the feelings she could not name and heard the prayers she had not learned to pray."
       ],
       context: "Psalm 42 does not hide spiritual thirst, tears, loneliness, or inner conflict. The writer speaks to God and to his own soul. Biblical hope is not emotional denial; it is honest lament that keeps turning toward God.",
+      bibleStory: [
+        "Psalm 42 opens with the image of a deer desperately searching for flowing water. The writer uses that thirst to describe his longing for God. He remembers worshiping with a crowd, but now he feels far from the place where he once experienced belonging. His tears have become his food, and people around him keep asking, ‘Where is your God?’ The psalm does not begin with a quick answer. It begins with spiritual dehydration, memory, loneliness, and loss.",
+        "The writer then speaks directly to his own soul: ‘Why are you downcast?’ He is not scolding himself for feeling low. He is noticing the conflict inside him. One part remembers God’s faithfulness; another part feels overwhelmed by wave after wave. He tells God that deep waters seem to be passing over him, yet he also remembers that God commands steadfast love by day and gives a song in the night.",
+        "The psalm repeats its central refrain because hope often has to be practiced more than once. The circumstances do not visibly change before the final line. What changes is that despair is brought into conversation with truth. The writer teaches us that lament and hope can occupy the same prayer. Faith can say, ‘I am downcast,’ and still turn toward God."
+      ],
       lesson: "You do not have to make your pain sound pretty before God will receive it. The Holy Spirit is present in truthful prayer. Naming sadness is not agreeing that it will rule forever—it is allowing God’s light into what shame told you to hide.",
       truths: [
         "My sadness is not proof that God has abandoned me.",
@@ -49,6 +62,11 @@ window.PGWS_OVERCOME_PLAN = {
         "The adults were responsible for maintaining safe boundaries. My desire to be valued did not make inappropriate attention my fault. Healing has required me to separate being noticed from being safely loved."
       ],
       context: "Hagar was used, mistreated, and driven into the wilderness. God found her there. She called Him El Roi—the God who sees me. God’s seeing is not consuming or exploitative. He sees with truth, dignity, and care.",
+      bibleStory: [
+        "Hagar was an Egyptian servant living inside Abraham and Sarah’s household. When Sarah could not conceive, Hagar’s body became part of someone else’s plan. After Hagar became pregnant, conflict grew between the women, and Sarah treated her harshly. Hagar fled into the wilderness—a vulnerable pregnant woman with little social power and no clear future.",
+        "The angel of the Lord found Hagar beside a spring. Scripture does not say Hagar found God; it says God found her. He called her by name, asked where she had come from and where she was going, and listened to the reality of her mistreatment. God gave her a promise concerning her child and made it clear that He had heard her affliction.",
+        "Hagar responded by naming God El Roi, ‘the God who sees me.’ In a world where powerful people had treated her as useful rather than fully human, God’s attention restored dignity. His seeing was not predatory, demanding, or consuming. He saw her pain, identity, future, and need for protection. Hagar’s story teaches us that being truly seen by God is different from being wanted by someone who does not honor our safety."
+      ],
       lesson: "Rejection can make unsafe attention feel like love. The Holy Spirit helps us discern the difference between someone desiring access to us and someone honoring the image of God in us. You do not have to surrender your safety to prove you are beautiful.",
       truths: [
         "God sees me without exploiting me.",
@@ -83,6 +101,11 @@ window.PGWS_OVERCOME_PLAN = {
         "I am learning that caring for my body is not vanity and receiving help is not failure. Sometimes the holiest next step is water, food, medication, rest, a shower, a dentist appointment, or telling someone I am not doing well."
       ],
       context: "After a public victory, Elijah became afraid, fled, collapsed, and asked to die. God did not begin with a lecture. He provided sleep, food, water, gentle presence, and a next step. Elijah’s body and spirit both mattered.",
+      bibleStory: [
+        "Elijah had just witnessed a dramatic victory on Mount Carmel, but one threatening message from Queen Jezebel sent him running for his life. He traveled into the wilderness, sat beneath a broom tree, and told God he had had enough. Then he fell asleep. A person can experience spiritual victory and still become emotionally and physically depleted afterward.",
+        "God did not answer Elijah’s despair with shame. An angel touched him and said, ‘Get up and eat.’ Near his head were bread and water. Elijah ate, drank, and slept again. The angel returned with the same practical care because the journey was too much for him. Before God addressed Elijah’s perspective or assignment, He cared for Elijah’s exhausted body.",
+        "At Horeb, Elijah expected God in the wind, earthquake, and fire, but the Lord met him in a gentle whisper. God listened to Elijah’s sense of isolation, corrected the belief that he was completely alone, gave him a manageable next assignment, and named Elisha as a companion and successor. Rest, nourishment, truth, purpose, and relationship all became part of God’s response."
+      ],
       lesson: "Depression can disrupt executive function, hygiene, appetite, sleep, and motivation. The Holy Spirit’s care is not limited to invisible spiritual matters. God may provide through practical routines, trusted people, pastors, therapists, doctors, and appropriate treatment.",
       truths: [
         "My need for care does not make me disgusting.",
@@ -118,6 +141,11 @@ window.PGWS_OVERCOME_PLAN = {
         "Christ has been teaching me that conviction is specific and leads toward freedom. Condemnation only calls me dirty and tells me to disappear. I can take responsibility for my choices without hating the hurting version of me who was trying to survive."
       ],
       context: "Jesus met the Samaritan woman at a well and spoke honestly about her life without turning her into a spectacle. He offered living water before she had everything corrected. His truth restored dignity and moved her out of hiding.",
+      bibleStory: [
+        "Jesus deliberately traveled through Samaria and stopped at Jacob’s well around noon. A Samaritan woman came alone to draw water. Social divisions stood between them: Jews and Samaritans distrusted one another, and men did not ordinarily engage women publicly in this way. Yet Jesus began a respectful conversation by asking her for a drink.",
+        "Jesus offered ‘living water’—life with God that reaches a deeper thirst. The woman initially understood Him literally, but the conversation moved toward the hidden places of her life. Jesus acknowledged her relationship history without mocking her, naming her, or inviting a crowd to condemn her. He told the truth while continuing to treat her as someone capable of worship, theological conversation, and revelation.",
+        "When Jesus revealed Himself as the Messiah, the woman left her water jar and returned to her community. The jar represented the ordinary reason she came, but the encounter reached a thirst she could not carry home in a container. The woman who approached alone became a witness. Jesus did not reduce her to her coping patterns or relationships; truth and grace restored movement, voice, and purpose."
+      ],
       lesson: "A coping pattern may provide temporary relief while deepening isolation. The Holy Spirit helps us pause long enough to recognize the trigger, name the real need, and choose a response that moves toward life. Repentance is a return to relationship, not self-disgust.",
       truths: [
         "Jesus tells the truth without humiliating me.",
@@ -153,6 +181,11 @@ window.PGWS_OVERCOME_PLAN = {
         "I used to think faith had to sound certain. Now I am learning that honest faith can tremble. God would rather receive my real questions than a polished prayer that keeps my heart hidden."
       ],
       context: "A desperate father asked Jesus to help his son and cried, “I believe. Help my unbelief.” Jesus did not reject the mixture of faith and doubt. He met the father inside it.",
+      bibleStory: [
+        "A father brought his suffering son to Jesus’ disciples, hoping they could help, but they could not. By the time Jesus arrived, teachers of the law were arguing, a crowd had gathered, and the father was carrying both his child’s pain and the disappointment of a failed attempt to receive help. He explained that the struggle had affected his son since childhood.",
+        "The father said to Jesus, ‘If You can do anything, have compassion on us and help us.’ Jesus responded that all things are possible for the one who believes. Immediately, the father cried out, ‘I believe; help my unbelief!’ His words held trust and uncertainty at the same time. He did not wait until his faith sounded perfect before bringing it to Christ.",
+        "Jesus did not reject the father for mixed faith. He received the honest prayer and moved toward the suffering child. Later, the disciples privately asked why they had been unable to help, and Jesus taught them about dependence on prayer. The story shows that spiritual confusion can be brought into relationship with Jesus, and that honest dependence is stronger than pretending to possess certainty."
+      ],
       lesson: "Depression can make God feel distant, but emotional numbness is not proof of divine absence. The Holy Spirit can hold questions that do not resolve quickly. Faith is not pretending certainty; it is bringing the uncertain heart to Christ.",
       truths: [
         "Questions do not frighten God.",
@@ -188,6 +221,11 @@ window.PGWS_OVERCOME_PLAN = {
         "I am also learning that strength is not always carrying myself. Sometimes strength is admitting that I need people who will carry the mat with me."
       ],
       context: "In Mark 2, a paralyzed man reached Jesus because four people carried him, opened a roof, and lowered him into the room. Jesus noticed their faith. Community participation was part of the man’s path to Christ.",
+      bibleStory: [
+        "Jesus returned to Capernaum, and so many people crowded into the house that there was no room left—not even near the door. Four people arrived carrying a paralyzed man on a mat. The crowd made the obvious route impossible, but the friends refused to treat the obstacle as the end of the story.",
+        "They climbed onto the roof, opened a space above Jesus, and lowered the man down. The man’s need was visible, but Scripture specifically says Jesus saw ‘their faith.’ The faith in the room was not only the faith of the person who needed healing; it was also the determined love of the people who carried, climbed, opened, and lowered.",
+        "Jesus first spoke forgiveness and then told the man to rise, pick up his mat, and go home. The mat that once carried him became something he could carry. Yet the story never erases the role of community. Before the man stood, he allowed others to bear his weight. Sometimes receiving help is itself an act of faith."
+      ],
       lesson: "The Holy Spirit forms a body, not isolated believers. Depression often says, “Do not burden anyone.” Scripture says we belong to one another. Some days faith looks like standing; other days it looks like letting safe people carry us.",
       truths: [
         "Needing help does not make me a burden.",
@@ -222,6 +260,11 @@ window.PGWS_OVERCOME_PLAN = {
         "My pain does not get the final word, but I do not have to call the pain good. God can bring purpose from what tried to bury me. I am still here. I am still loved. I am still becoming."
       ],
       context: "Mary Magdalene stood outside Jesus’ tomb weeping. The risen Christ met her before the tears stopped and called her by name. Resurrection hope entered a grieving moment rather than waiting for a cheerful one.",
+      bibleStory: [
+        "Mary Magdalene came to Jesus’ tomb while it was still dark and discovered that the stone had been moved. She ran to tell Peter and the other disciple, who inspected the tomb and then returned home. Mary remained. She stood outside weeping because grief had not released her simply because other people had left the scene.",
+        "Mary looked into the tomb and saw angels, but even that extraordinary sight did not immediately resolve her sorrow. When Jesus stood near her, she mistook Him for the gardener. Grief can make hope difficult to recognize. Jesus did not shame her for failing to identify Him. He asked why she was crying and whom she was seeking.",
+        "Everything changed when Jesus said, ‘Mary.’ She recognized the risen Christ when He called her by name. He then entrusted her with a message for the disciples. Mary’s tears and assignment occupied the same morning. Resurrection did not mean the pain had been imaginary; it meant death did not have the final word. The grieving woman became the first witness sent to announce that Jesus was alive."
+      ],
       lesson: "Christian hope is not pressure to feel better on command. It is confidence that suffering, shame, and death do not possess the final word. The Holy Spirit continues forming us through Scripture, community, treatment, boundaries, rest, service, and daily grace.",
       truths: [
         "Jesus knows my name in the middle of my tears.",
