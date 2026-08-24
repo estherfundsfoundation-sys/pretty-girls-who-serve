@@ -99,6 +99,41 @@ async function sendChapterScreeningEmail(application) {
   return recipients.length;
 }
 
+async function sendChapterNextStepEmail(application, status, details = {}) {
+  const bridgeUrl = String(process.env.MISS_PGWS_MAIL_BRIDGE_URL || "").trim();
+  const bridgeSecret = String(process.env.PGWS_MAIL_BRIDGE_SECRET || "").trim();
+  const apiKey = String(process.env.RESEND_API_KEY || "").trim();
+  if (!(bridgeUrl && bridgeSecret) && !apiKey)
+    throw new Error("PGWS email delivery is not configured.");
+  const recipients = [application.founder_email, application.cofounder_email]
+    .map((value) => String(value || "").trim().toLowerCase())
+    .filter((value, index, values) => value && values.indexOf(value) === index);
+  const firstName = String(application.founder_name || "Founder").trim().split(/\s+/)[0];
+  const appUrl = details.appUrl;
+  const accepted = status === "accepted";
+  const subject = accepted
+    ? `Welcome to the PGWS founder pathway — ${application.institution}`
+    : `PGWS group interview invitation — ${application.institution}`;
+  const headline = accepted ? "Welcome to the PGWS family." : "You are invited to interview.";
+  const core = accepted
+    ? `PGWS Nationals has approved your founding team to proceed to the conditional chapter-launch pathway. This is not yet an official chapter launch. Your first steps are to review the Chapter House, complete your founder checklist, recruit an eligible executive board privately, activate required P31 memberships, complete training, and submit your institution's recognition process. Do not create social-media accounts, collect money, order merchandise, or publicly represent an official chapter until PGWS provides written authorization.`
+    : `PGWS Nationals would like to invite your founding team to a group interview. This conversation will focus on character, leadership, Christ-centered service, campus or community need, and readiness to follow national standards. Interview invitation is not chapter approval.`;
+  const interviewBlock = accepted ? "" : `\n\nWhen: ${details.interviewWhen}\nJoin: ${details.interviewUrl}`;
+  const text = `Hi ${firstName},\n\n${headline}\n\n${core}${interviewBlock}\n\nChapter House: ${appUrl}/chapters\nP31 Portal: ${appUrl}/p31\n\nWith love,\nPretty Girls Who Serve Nationals\nFaith · Purpose · Sisterhood · Service`;
+  const htmlDetails = accepted ? "" : `<p style="padding:16px;background:#fff0f5"><b>When:</b> ${escapeHtml(details.interviewWhen)}<br><b>Join:</b> <a href="${escapeHtml(details.interviewUrl)}">Open the group interview</a></p>`;
+  const html = `<div style="max-width:640px;margin:auto;padding:32px 18px;font-family:Arial,sans-serif;color:#20151b"><div style="padding:34px;border-radius:24px 24px 0 0;background:#7d2751;color:white"><p style="margin:0;color:#ffd6e7;font-size:12px;letter-spacing:2px">PRETTY GIRLS WHO SERVE NATIONALS</p><h1 style="font-family:Georgia,serif;font-size:38px;line-height:1.05;margin:12px 0">${escapeHtml(headline)}</h1></div><div style="padding:32px;border:1px solid #ffd6e7;border-top:0;background:white"><p>Hi ${escapeHtml(firstName)},</p><p>${escapeHtml(core)}</p>${htmlDetails}<p><a href="${escapeHtml(appUrl)}/chapters" style="color:#7d2751;font-weight:bold">Open the PGWS Chapter House</a><br><a href="${escapeHtml(appUrl)}/p31" style="color:#7d2751;font-weight:bold">Open the P31 Portal</a></p><p>With love,<br><b>Pretty Girls Who Serve Nationals</b><br>Faith · Purpose · Sisterhood · Service</p></div></div>`;
+  for (const recipient of recipients) {
+    const useBridge = Boolean(bridgeUrl && bridgeSecret);
+    const response = await fetch(useBridge ? bridgeUrl : "https://api.resend.com/emails", {
+      method: "POST",
+      headers: { ...(useBridge ? { "x-pgws-mail-bridge-secret": bridgeSecret } : { Authorization: `Bearer ${apiKey}` }), "Content-Type": "application/json" },
+      body: JSON.stringify(useBridge ? { recipient, subject, text, html } : { from: process.env.PGWS_EMAIL_FROM || "Pretty Girls Who Serve <pgws@estherfundsinc.org>", to: [recipient], reply_to: "chapters@estherfundsinc.org", subject, text, html }),
+    });
+    if (!response.ok) throw new Error(`Chapter ${status.replaceAll("_", " ")} email failed for ${recipient}.`);
+  }
+  return recipients.length;
+}
+
 async function findAuthUser({ userId, email }) {
   if (userId) {
     const response = await fetch(
@@ -443,6 +478,12 @@ async function postAction(req, user, body) {
     ];
     if (!allowed.includes(status))
       throw new Error("Choose a valid chapter-application decision.");
+    const interviewWhen = cleanText(body.interviewWhen, 200);
+    const interviewUrl = cleanText(body.interviewUrl, 500);
+    if (status === "interview_invited") {
+      if (!interviewWhen) throw new Error("Enter the group interview date, time, and time zone.");
+      if (!/^https:\/\//i.test(interviewUrl)) throw new Error("Enter a secure https group interview link.");
+    }
     const before = (
       await dbSelect(
         "pgws_chapter_applications",
@@ -490,9 +531,22 @@ async function postAction(req, user, body) {
         afterState: { recipients: screeningEmailCount },
       });
     }
+    let nextStepEmailCount = 0;
+    if (["interview_invited", "accepted"].includes(status)) {
+      const emailAction = `chapter_application.${status}_email_sent`;
+      const prior = await dbSelect("pgws_audit_log", `select=id&action=eq.${emailAction}&entity_id=eq.${encodeURIComponent(applicationId)}&limit=1`);
+      if (!prior?.length) {
+        nextStepEmailCount = await sendChapterNextStepEmail(rows?.[0] || before, status, {
+          interviewWhen,
+          interviewUrl,
+          appUrl: publicOrigin(req),
+        });
+        await recordAudit({ actorUserId: user.id, actorType: "admin", action: emailAction, entityType: "pgws_chapter_application", entityId: applicationId, afterState: { recipients: nextStepEmailCount } });
+      }
+    }
     return {
       application: rows?.[0],
-      message: `Chapter application is now ${status.replaceAll("_", " ")}.${screeningEmailCount ? ` Screening email sent to ${screeningEmailCount} applicant contact${screeningEmailCount === 1 ? "" : "s"}.` : ""}`,
+      message: `Chapter application is now ${status.replaceAll("_", " ")}.${screeningEmailCount ? ` Screening email sent to ${screeningEmailCount} applicant contact${screeningEmailCount === 1 ? "" : "s"}.` : ""}${nextStepEmailCount ? ` Next-step email sent to ${nextStepEmailCount} applicant contact${nextStepEmailCount === 1 ? "" : "s"}.` : ""}`,
     };
   }
   if (action === "resend_welcome") {

@@ -54,6 +54,14 @@
   ];
   const resources = [
     {
+      category: "governance",
+      title: "PGWS National Chapter Standards",
+      description:
+        "Mission, chapter authority, LLC disclosures, officer conduct, sister safety, finances, brand control, discipline, and national accountability.",
+      href: "/downloads/pgws-chapter-launch-leadership-manual.pdf",
+      access: "Official handbook",
+    },
+    {
       category: "launch",
       title: "PGWS Chapter Launch & Leadership Manual",
       description:
@@ -78,7 +86,7 @@
       access: "P31 member resource",
     },
     {
-      category: "leadership",
+      category: "launch",
       title: "Executive Board Builder",
       description:
         "Officer roles, recruitment questions, selection standards, and a healthy board-start process.",
@@ -86,7 +94,7 @@
       access: "Approved founders",
     },
     {
-      category: "leadership",
+      category: "training",
       title: "Leader Training Path",
       description:
         "Mission, ministry, sister safety, conflict, stewardship, service, and national accountability.",
@@ -100,6 +108,14 @@
         "How to prepare for student-organization registration without claiming approval too early.",
       href: "/p31?panel=chapter",
       access: "Approved founders",
+    },
+    {
+      category: "operations",
+      title: "Chapter Constitution + Officer Agreement",
+      description:
+        "The governance clauses, officer commitments, records, and signature standards approved founders use during recognition.",
+      href: "/downloads/pgws-chapter-launch-leadership-manual.pdf",
+      access: "Printable templates",
     },
     {
       category: "operations",
@@ -118,7 +134,15 @@
       access: "Chapter leaders",
     },
     {
-      category: "operations",
+      category: "programming",
+      title: "Faith, Sisterhood + Service Program Studio",
+      description:
+        "A dignity-first planning framework for meetings, Bible study, member development, outreach, partnerships, and campus service.",
+      href: "/downloads/pgws-chapter-launch-leadership-manual.pdf",
+      access: "Ready-to-use guide",
+    },
+    {
+      category: "branding",
       title: "Brand + Communications Rules",
       description:
         "When official accounts, logos, emails, flyers, merchandise, and public statements may be used.",
@@ -126,12 +150,28 @@
       access: "Approved chapters",
     },
     {
-      category: "operations",
+      category: "compliance",
       title: "Good-Standing Dashboard",
       description:
         "Required reporting, training, service, officer records, communication, and renewal checkpoints.",
       href: "/p31?panel=chapter",
       access: "Approved chapters",
+    },
+    {
+      category: "membership",
+      title: "P31 Membership + Recruitment Guide",
+      description:
+        "Every chapter member activates the required $20 national membership in P31 before joining the official roster. Includes fair recruitment and onboarding standards.",
+      href: "/p31",
+      access: "$20 national membership",
+    },
+    {
+      category: "membership",
+      title: "New Member Experience",
+      description:
+        "A Christ-centered welcome pathway covering expectations, belonging, service, privacy, leadership, and the member covenant.",
+      href: "/downloads/pgws-chapter-launch-leadership-manual.pdf",
+      access: "Chapter toolkit",
     },
   ];
   let chapters = [];
@@ -247,6 +287,9 @@
       message.textContent = "Submitting your charter interest securely…";
       const values = Object.fromEntries(new FormData(form));
       values.acknowledgement = Boolean(values.acknowledgement);
+      values.membershipAcknowledgement = Boolean(
+        values.membershipAcknowledgement,
+      );
       try {
         const response = await fetch("/api/pgws/chapter-applications", {
           method: "POST",

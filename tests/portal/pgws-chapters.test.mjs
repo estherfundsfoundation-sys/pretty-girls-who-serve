@@ -24,6 +24,8 @@ test("Chapter House has clean public routes and a complete application", () => {
   assert.match(html, /cofounderName/);
   assert.match(html, /ministry/);
   assert.match(html, /acknowledgement/);
+  assert.match(html, /membershipAcknowledgement/);
+  assert.match(html, /\$20 PGWS national membership/i);
   assert.match(html, /written approval/i);
 });
 
@@ -44,6 +46,7 @@ test("Chapter application storage is private, auditable, and duplicate-aware", (
   assert.match(api, /founder_email_key/);
   assert.match(api, /chapter_application\.submitted/);
   assert.match(api, /acknowledgement !== true/);
+  assert.match(api, /membershipAcknowledgement !== true/);
   assert.match(api, /not permission to recruit publicly/i);
 });
 
@@ -124,4 +127,37 @@ test("the downloadable PGWS chapter manual is present", () => {
   );
   assert.ok(fs.existsSync(manual));
   assert.ok(fs.statSync(manual).size > 20_000);
+});
+
+test("the public hub mirrors the complete national resource structure", () => {
+  const html = read("chapters.html");
+  const script = read("chapters.js");
+  for (const category of [
+    "governance",
+    "launch",
+    "operations",
+    "programming",
+    "branding",
+    "training",
+    "compliance",
+    "membership",
+    "service",
+  ]) {
+    assert.match(html + script, new RegExp(category, "i"));
+  }
+  assert.match(html, /SEAMLESS FOUNDER ONBOARDING/);
+  assert.match(html, /pgws-national-logo\.png/);
+});
+
+test("Nationals can send tracked interview and accepted-founder next steps", () => {
+  const html = read("pgws-admin.html");
+  const client = read("pgws-admin.js");
+  const api = read("api/pgws/admin.js");
+  assert.match(html, /dialogInterviewWhen/);
+  assert.match(html, /dialogInterviewUrl/);
+  assert.match(client, /interviewWhen/);
+  assert.match(api, /sendChapterNextStepEmail/);
+  assert.match(api, /chapter_application\.\$\{status\}_email_sent/);
+  assert.match(api, /\["interview_invited", "accepted"\]/);
+  assert.match(api, /No chapter account may be created|do not create social-media accounts/i);
 });

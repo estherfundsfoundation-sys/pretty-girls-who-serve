@@ -1,10 +1,10 @@
 :root {
-  --ink: #26151e;
-  --deep: #4e2037;
-  --rose: #b84b7d;
-  --pink: #f6b9d2;
-  --baby: #fff0f6;
-  --cream: #fffaf3;
+  --ink: #20151b;
+  --deep: #7d2751;
+  --rose: #d85d98;
+  --pink: #f9a8c9;
+  --baby: #ffd6e7;
+  --cream: #fff0f5;
   --white: #fff;
   --line: #ead5df;
   --muted: #765966;
@@ -58,23 +58,12 @@ a {
   gap: 10px;
   text-decoration: none;
 }
-.chapter-brand > span {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border: 2px solid;
-  border-radius: 50%;
-  font: 400 18px "DM Serif Display";
-}
-.chapter-brand b {
-  font: 400 17px/1 "DM Serif Display";
-  letter-spacing: 0.05em;
-}
-.chapter-brand i {
+.chapter-brand img {
   display: block;
-  color: var(--rose);
-  font: 400 12px Pacifico;
+  width: 160px;
+  height: 54px;
+  object-fit: contain;
+  object-position: left center;
 }
 .chapter-header nav {
   display: flex;
@@ -309,6 +298,23 @@ a {
   background: var(--cream);
   box-shadow: var(--shadow);
 }
+.membership-notice {
+  margin: 0 0 28px;
+  border-left: 5px solid var(--pink);
+  border-radius: 14px;
+  background: var(--cream);
+  padding: 18px 20px;
+  color: var(--deep);
+}
+.membership-notice strong,
+.membership-notice a {
+  display: block;
+}
+.membership-notice a {
+  margin-top: 8px;
+  color: var(--rose);
+  font-weight: 900;
+}
 .form-progress {
   display: flex;
   gap: 8px;
@@ -402,6 +408,9 @@ a {
   flex-direction: column;
   color: var(--ink);
 }
+.resource-hub .resource-grid article p {
+  color: var(--muted);
+}
 .resource-grid .resource-label {
   color: var(--rose);
   font-size: 10px;
@@ -451,6 +460,32 @@ a {
 .chapter-standards aside p {
   color: #e8cad8;
 }
+.onboarding-section {
+  background: linear-gradient(180deg, #fff, var(--cream));
+}
+.onboarding-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.onboarding-grid article {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: white;
+  padding: 24px;
+}
+.onboarding-grid b {
+  color: var(--rose);
+  font-size: 32px;
+}
+.onboarding-grid h3 {
+  margin: 6px 0;
+  font: 400 25px "DM Serif Display";
+}
+.onboarding-grid p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
 footer {
   display: flex;
   justify-content: space-between;
@@ -485,7 +520,8 @@ footer a {
   }
   .chapter-directory,
   .pathway-grid,
-  .resource-grid {
+  .resource-grid,
+  .onboarding-grid {
     grid-template-columns: 1fr 1fr;
   }
   .chapter-standards {
@@ -505,7 +541,8 @@ footer a {
   }
   .chapter-directory,
   .pathway-grid,
-  .resource-grid {
+  .resource-grid,
+  .onboarding-grid {
     grid-template-columns: 1fr;
   }
   .hero-actions,

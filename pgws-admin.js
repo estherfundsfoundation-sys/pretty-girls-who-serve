@@ -331,6 +331,9 @@
     $("dialogAction").value = action;
     $("dialogNotes").value = "";
     message("dialogMessage", "");
+    $("chapterInterviewFields").hidden = true;
+    $("dialogInterviewWhen").value = "";
+    $("dialogInterviewUrl").value = "";
     const select = $("dialogStatus");
     if (kind === "membership") {
       $("dialogTitle").textContent = "Membership decision";
@@ -345,6 +348,11 @@
       $("dialogTitle").textContent = "Chapter application decision";
       select.innerHTML =
         '<option value="screening">Screening</option><option value="interview_invited">Invite to interview</option><option value="interviewed">Interviewed</option><option value="second_interview">Second interview</option><option value="accepted">Accepted to proceed</option><option value="declined">Declined</option><option value="withdrawn">Withdrawn</option>';
+      const syncInterviewFields = () => {
+        $("chapterInterviewFields").hidden = select.value !== "interview_invited";
+      };
+      select.onchange = syncInterviewFields;
+      syncInterviewFields();
     } else {
       $("dialogTitle").textContent = "Support follow-through";
       select.innerHTML =
@@ -565,6 +573,8 @@
       action,
       status: $("dialogStatus").value,
       notes: $("dialogNotes").value,
+      interviewWhen: $("dialogInterviewWhen").value,
+      interviewUrl: $("dialogInterviewUrl").value,
     };
     if (action === "review_service") body.entryId = id;
     else if (action === "resolve_support") body.requestId = id;

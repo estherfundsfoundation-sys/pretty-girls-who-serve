@@ -241,6 +241,13 @@ export function createChapterApplicationHandler({
         throw new Error(
           "You must acknowledge the pre-approval rules before submitting.",
         );
+      if (
+        body.membershipAcknowledgement !== true &&
+        body.membershipAcknowledgement !== "on"
+      )
+        throw new Error(
+          "You must acknowledge the $20 national membership requirement before submitting.",
+        );
       const existing = await select(
         "pgws_chapter_applications",
         `select=reference_number,created_at,status&founder_email_key=eq.${encodeURIComponent(founderEmail)}&created_at=gte.${encodeURIComponent(new Date(now().getTime() - 7 * 86400000).toISOString())}&status=neq.withdrawn&order=created_at.desc&limit=1`,
