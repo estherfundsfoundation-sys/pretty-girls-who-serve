@@ -20,7 +20,7 @@ function serviceHeaders() {
 
 async function parse(response, fallback) {
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body?.message || body?.msg || fallback);
+  if (!response.ok) throw new Error(body?.message || body?.msg || body?.error || fallback);
   return body;
 }
 
