@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#8f315a" />
+    <meta name="description" content="A free, interactive seven-day PGWS Bible plan for walking through depression with Christ." />
+    <title>Pretty Girls Overcome | Free PGWS Bible Plan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600;1,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="overcome.css" />
+  </head>
+  <body>
+    <a class="skip" href="#planMain">Skip to Bible plan</a>
+    <header class="plan-nav">
+      <a class="brand" href="/" aria-label="Pretty Girls Who Serve home">
+        <span>PG</span><b>PRETTY GIRLS<em>who serve</em></b>
+      </a>
+      <nav aria-label="Plan navigation">
+        <a href="#days">7 Days</a>
+        <a href="#studyTogether">Study Together</a>
+        <a href="/p31?panel=faith">P31 Portal</a>
+      </nav>
+    </header>
+
+    <main id="planMain">
+      <section class="plan-hero">
+        <div class="hero-copy">
+          <p class="eyebrow">A FREE 7-DAY INTERACTIVE BIBLE PLAN</p>
+          <h1>Pretty Girls<br /><em>Overcome.</em></h1>
+          <p class="subtitle">Walking Through Depression With Christ</p>
+          <p class="intro">An honest journey through Shayna’s story, seven stories in Scripture, deep reflection, practical faith activities, and the gentle presence of the Holy Spirit.</p>
+          <div class="hero-actions">
+            <button class="primary" id="beginPlan">Begin Day One <span>→</span></button>
+            <button class="secondary" id="continuePlan">Continue My Plan</button>
+          </div>
+          <p class="free-note">♡ Public and free. No account required. Your responses stay private on this device.</p>
+        </div>
+        <aside class="hero-card" aria-label="Plan affirmation">
+          <span class="bow">୨୧</span>
+          <p>STILL HERE</p>
+          <strong>still loved.<br />still becoming.</strong>
+          <div class="verse">“Why, my soul, are you downcast? … Put your hope in God.”<br /><b>PSALM 42:11</b></div>
+          <i>✦</i><i>♡</i><i>✝</i>
+        </aside>
+      </section>
+
+      <section class="care-banner" aria-label="Mental health care note">
+        <span>♡</span>
+        <div><b>Faith and care belong together.</b><p>This plan supports spiritual reflection; it does not replace licensed mental-health treatment, medical care, medication, pastoral care, or emergency support. In the U.S., call or text <a href="tel:988">988</a> for crisis support or call <a href="tel:911">911</a> in immediate danger.</p></div>
+      </section>
+
+      <section class="journey" id="days">
+        <div class="section-title">
+          <p class="eyebrow">YOUR SEVEN-DAY JOURNEY</p>
+          <h2>One honest step at a time.</h2>
+          <p>Read publicly. Reflect privately. Invite the Holy Spirit into the whole story.</p>
+        </div>
+        <div class="progress-card">
+          <div><span id="progressText">0 of 7 days complete</span><b id="progressPercent">0%</b></div>
+          <div class="progress-track"><i id="progressFill"></i></div>
+        </div>
+        <div class="day-tabs" id="dayTabs" role="tablist" aria-label="Choose a plan day"></div>
+
+        <article class="study" id="study" tabindex="-1">
+          <header class="study-head">
+            <div><p id="dayLabel">DAY 1 OF 7</p><h2 id="dayTitle"></h2></div>
+            <button class="complete-toggle" id="completeDay">♡ Mark complete</button>
+          </header>
+
+          <div class="passage-card">
+            <span>✝</span><div><p>READ IN SCRIPTURE</p><h3 id="passage"></h3><p id="keyVerse"></p></div>
+          </div>
+
+          <section class="story-section">
+            <p class="section-kicker">A PIECE OF MY STORY</p>
+            <h3>From Shayna, honestly.</h3>
+            <div id="storyCopy"></div>
+          </section>
+
+          <div class="study-grid">
+            <section>
+              <p class="section-kicker">HER STORY IN SCRIPTURE</p>
+              <h3>Before we interpret it</h3>
+              <p id="context"></p>
+            </section>
+            <section class="rose-panel">
+              <p class="section-kicker">WHERE OUR STORIES MEET</p>
+              <h3>The deeper lesson</h3>
+              <p id="lesson"></p>
+            </section>
+          </div>
+
+          <section class="truth-panel">
+            <p class="section-kicker">MIRROR TRUTHS</p>
+            <h3>Say what is true, pretty girl.</h3>
+            <ul id="truths"></ul>
+          </section>
+
+          <section class="responses">
+            <p class="section-kicker">YOUR STORY MATTERS TOO</p>
+            <h3>Questions that require honesty.</h3>
+            <p class="private-chip">🔒 Private on this device</p>
+            <div id="questionFields"></div>
+          </section>
+
+          <section class="activity-card">
+            <div class="activity-number">✦</div>
+            <div>
+              <p class="section-kicker">TODAY’S PRETTY PRACTICE</p>
+              <h3 id="activityTitle"></h3>
+              <div id="activityFields"></div>
+              <label class="pretty-step"><input type="checkbox" id="prettyStepCheck" /><span><b>My gentle next step</b><em id="prettyStep"></em></span></label>
+            </div>
+          </section>
+
+          <section class="prayer-card">
+            <span>✝</span><div><p class="section-kicker">PRAY THIS SLOWLY</p><p id="prayer"></p></div>
+          </section>
+
+          <section class="share-takeaway">
+            <p class="section-kicker">OPTIONAL · STUDY WITH SISTERS</p>
+            <h3>What truth are you carrying today?</h3>
+            <p>Your deep answers stay private. This one takeaway can be shared with your study circle only if you choose.</p>
+            <textarea id="takeaway" maxlength="500" placeholder="Today I’m carrying…"></textarea>
+            <label><input type="checkbox" id="shareTakeaway" /> Share this takeaway with my active study circle when signed in</label>
+          </section>
+
+          <div class="save-row">
+            <button class="primary" id="saveDay">Save My Private Responses</button>
+            <span id="saveMessage" role="status"></span>
+          </div>
+          <div class="day-navigation">
+            <button id="previousDay">← Previous Day</button>
+            <button id="nextDay">Next Day →</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="together" id="studyTogether">
+        <div class="section-title light">
+          <p class="eyebrow">SISTER STUDY CIRCLES</p>
+          <h2>Healing was never meant to be lonely.</h2>
+          <p>The plan is free for everyone. Sign in only if you want to add friends, create a private circle, and encourage one another through the seven days.</p>
+        </div>
+        <div class="social-shell">
+          <div id="socialSignedOut" class="social-gate">
+            <span>୨୧</span><h3>Study with your sisters.</h3>
+            <p>Use your existing PGWS account. Your private reflections are never shown to friends or PGWS.</p>
+            <a class="primary link-button" href="/p31">Sign In Through P31 →</a>
+          </div>
+          <div id="socialSignedIn" hidden>
+            <div class="social-welcome"><div><p>WELCOME BACK</p><h3 id="socialName">Hey, sister.</h3></div><button id="refreshSocial">Refresh</button></div>
+            <div class="social-grid">
+              <section>
+                <p class="section-kicker">FIND YOUR SISTERS</p>
+                <input id="friendSearch" type="search" placeholder="Search the PGWS directory" />
+                <div id="friendResults" class="friend-list"></div>
+              </section>
+              <section>
+                <p class="section-kicker">FRIEND REQUESTS</p>
+                <div id="friendRequests" class="friend-list"></div>
+                <p class="section-kicker spaced">MY FRIENDS</p>
+                <div id="friendList" class="friend-list"></div>
+              </section>
+            </div>
+            <section class="circle-builder">
+              <div><p class="section-kicker">START A CIRCLE</p><h3>Complete Pretty Girls Overcome together.</h3></div>
+              <form id="circleForm">
+                <label>Circle name<input id="circleName" maxlength="60" placeholder="Still Becoming Sisters" required /></label>
+                <label>Start date<input id="circleStart" type="date" required /></label>
+                <fieldset><legend>Invite accepted friends</legend><div id="circleFriendChoices"></div></fieldset>
+                <button class="primary">Create Study Circle</button>
+              </form>
+            </section>
+            <div id="circleList" class="circle-list"></div>
+            <p class="community-safety">♡ You control what you share. Leave a circle, remove a friend, block a member, or report concerning content at any time. Never post private contact information, locations, or another person’s story.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="completion" id="completion" hidden>
+        <span>୨୧</span><p>SEVEN DAYS COMPLETE</p><h2>Still here.<br /><em>Still becoming.</em></h2>
+        <p>You did not have to become perfectly healed to finish faithfully. Carry the truth, support, practices, and people God has given you into the next chapter.</p>
+        <button class="primary" id="downloadReflection">Download My Plan Reflections</button>
+      </section>
+    </main>
+
+    <footer><a href="/">Pretty Girls Who Serve</a><p>Faith. Purpose. Sisterhood. Service.</p><a href="mailto:pgws@estherfundsinc.org">pgws@estherfundsinc.org</a></footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="community-config.js"></script>
+    <script src="overcome-data.js"></script>
+    <script src="overcome.js"></script>
+  </body>
+</html>

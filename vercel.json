@@ -8,6 +8,7 @@
     { "source": "/chapters", "destination": "/chapters.html" },
     { "source": "/start-a-chapter", "destination": "/chapters.html" },
     { "source": "/chapter-resources", "destination": "/chapters.html" },
+    { "source": "/plans/pretty-girls-overcome", "destination": "/overcome.html" },
     { "source": "/pgws-admin", "destination": "/pgws-admin.html" }
   ],
   "headers": [
