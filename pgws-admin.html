@@ -277,6 +277,10 @@
         /><label>Decision<select id="dialogStatus"></select></label
         ><label
           >Notes<textarea id="dialogNotes" maxlength="3000"></textarea></label
+        ><div id="chapterInterviewFields" hidden>
+          <label>Group interview date, time, and time zone<input id="dialogInterviewWhen" maxlength="200" placeholder="Saturday, August 29 at 10:00 AM Eastern" /></label>
+          <label>Secure group interview link<input id="dialogInterviewUrl" type="url" maxlength="500" placeholder="https://..." /></label>
+        </div
         ><button>Save decision →</button>
         <p id="dialogMessage"></p>
       </form>

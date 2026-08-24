@@ -4,17 +4,17 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle, KeepTogether, HRFlowable
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle, KeepTogether, HRFlowable, Image
 
 OUT = Path(__file__).resolve().parents[1] / "downloads" / "pgws-chapter-launch-leadership-manual.pdf"
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
-INK = colors.HexColor("#26151E")
-DEEP = colors.HexColor("#4E2037")
-ROSE = colors.HexColor("#B84B7D")
-PINK = colors.HexColor("#F6B9D2")
-BABY = colors.HexColor("#FFF0F6")
-CREAM = colors.HexColor("#FFFAF3")
+INK = colors.HexColor("#20151B")
+DEEP = colors.HexColor("#7D2751")
+ROSE = colors.HexColor("#D85D98")
+PINK = colors.HexColor("#F9A8C9")
+BABY = colors.HexColor("#FFD6E7")
+CREAM = colors.HexColor("#FFF0F5")
 MUTED = colors.HexColor("#765966")
 WHITE = colors.white
 
@@ -63,6 +63,11 @@ def table(rows, widths, header=True):
     t.setStyle(TableStyle(commands)); story.append(t); story.append(Spacer(1,10))
 
 story=[]
+logo_path = Path(__file__).resolve().parents[1] / "assets" / "pgws-national-logo.png"
+if logo_path.exists():
+    logo = Image(str(logo_path), width=1.15*inch, height=1.15*inch)
+    logo.hAlign = "CENTER"
+    story += [logo, Spacer(1, .08*inch)]
 cover=Table([[Paragraph("PRETTY GIRLS WHO SERVE",styles["CoverEyebrow"])],[Paragraph("Chapter Launch &<br/>Leadership Manual",styles["CoverTitle"])],[Paragraph("A practical pathway for founders, executive boards, advisors, and approved chapter leaders",styles["CoverSub"])],[Paragraph("FAITH · PURPOSE · SISTERHOOD · SERVICE",styles["CoverEyebrow"])]],colWidths=[6.7*inch],rowHeights=[.55*inch,1.6*inch,1.05*inch,.65*inch])
 cover.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,-1),INK),("VALIGN",(0,0),(-1,-1),"MIDDLE"),("BOX",(0,0),(-1,-1),1.5,PINK),("LEFTPADDING",(0,0),(-1,-1),35),("RIGHTPADDING",(0,0),(-1,-1),35)]))
 story += [Spacer(1,.75*inch),cover,Spacer(1,.3*inch),Paragraph("Every approved chapter should feel like a safe, disciplined, joyful place where women grow closer to Christ, become confident leaders, and turn love into visible service.",styles["Callout"]),Spacer(1,.35*inch),Paragraph("OFFICIAL NATIONAL RESOURCE · 2026-2027",styles["Footerx"]),PageBreak()]
@@ -148,12 +153,19 @@ checks(["Is every fact, date, link, name, and title accurate?","Did each identif
 page()
 
 title("Membership & Recruitment")
+p("<b>Every woman on an official PGWS chapter roster must activate her $20 national membership through the P31 Portal.</b> This is a PGWS membership fee, not a charitable donation to Esther Funds Foundation. A chapter application, founder approval, or university recognition does not waive the fee unless PGWS Nationals records a written exception. Chapters may not collect the national fee in a personal account or create a replacement payment link.","Callout")
+h("P31 roster standard")
+checks(["Each prospective member creates or claims her own P31 account using an email she can access.","The member completes the approved $20 national membership checkout in P31.","The chapter verifies active status in the authorized roster view; screenshots of payments are not the official record.","Leaders protect membership IDs and account information and never ask members to share passwords or verification codes.","A member who has a payment or account problem uses the official P31 support pathway before paying again."])
 h("Recruit with clarity")
 p("Tell prospective members what PGWS is, what participation requires, what the chapter can currently offer, and whether the chapter is forming or officially recognized. Do not create urgency through pressure, spiritual guilt, popularity, or promises of benefits.")
 h("Fair membership process")
 bullets(["Use the approved interest/application process.","Apply published criteria consistently and document decisions.","Do not discriminate on protected grounds or retaliate for questions and concerns.","Protect application details and limit access to authorized reviewers.","Send accurate acceptance, waitlist, correction, or decline communication.","Onboard before assigning responsibility or access."])
 h("Welcome meeting outline")
 table([["Part","Purpose"],["Welcome + prayer/reflection","Set a warm, voluntary, Christ-centered tone."],["PGWS identity","Faith, purpose, sisterhood, service, and the LLC/EFF distinction."],["Member expectations","Communication, conduct, attendance, consent, service, and safety."],["Resources","P31 Portal, chapter hub, national support, and emergency resources."],["Connection","Small-group conversation and one realistic next step."],["Closing","Questions, contact pathway, and follow-up date."]],[2.1*inch,4.6*inch])
+h("Member covenant conversation")
+bullets(["I will treat every sister with dignity and will not participate in hazing, humiliation, gossip, retaliation, or spiritual pressure.","I will keep private information private and use official support pathways when a concern needs escalation.","I will communicate honestly, honor deadlines, and ask for help before a commitment becomes a crisis.","I will represent PGWS accurately and will not create accounts, collect money, or use protected branding without authorization.","I will serve from faith and compassion while respecting that leaders are not therapists, attorneys, emergency responders, or financial-aid officers."])
+h("Roster onboarding record")
+checks(["Member name and accessible email confirmed.","P31 membership status verified in the authorized system.","Chapter expectations and member covenant reviewed.","Privacy, photo consent, communication, and emergency pathways explained.","Meeting calendar, official contacts, and first service opportunity shared."])
 page()
 
 title("Conflict Resolution & Escalation")

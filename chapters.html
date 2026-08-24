@@ -19,9 +19,9 @@
   <body>
     <a class="skip" href="#main">Skip to content</a>
     <header class="chapter-header">
-      <a class="chapter-brand" href="/"
-        ><span>PG</span><b>PRETTY GIRLS <i>who serve</i></b></a
-      >
+      <a class="chapter-brand" href="/" aria-label="Pretty Girls Who Serve home">
+        <img src="/assets/pgws-national-logo.png" alt="Pretty Girls Who Serve" />
+      </a>
       <nav aria-label="Chapter navigation">
         <a href="#find">Find a chapter</a><a href="#pathway">Start a chapter</a
         ><a href="#resources">Resource hub</a
@@ -177,6 +177,14 @@
             confirmation and PGWS Nationals will review the submission before
             inviting qualified applicants to interview.
           </p>
+          <div class="membership-notice">
+            <strong>National membership is part of chapter readiness.</strong>
+            Every woman who joins an approved PGWS chapter must activate her
+            $20 national membership through the P31 Portal. The fee is a PGWS
+            membership fee, not a charitable donation, and chapter approval is
+            separate from membership payment.
+            <a href="/p31">Open the P31 Portal →</a>
+          </div>
         </div>
         <form class="chapter-form" id="chapterApplication">
           <div class="form-progress">
@@ -271,6 +279,12 @@
                 publicly represent an approved chapter without written
                 authorization from PGWS Nationals.</span
               ></label
+            ><label class="wide consent"
+              ><input type="checkbox" name="membershipAcknowledgement" required /><span
+                >I understand that every approved chapter member must activate
+                the required $20 PGWS national membership through the P31
+                Portal before being counted on the official chapter roster.</span
+              ></label
             ><label class="honeypot" aria-hidden="true"
               >Leave this blank<input
                 name="website"
@@ -301,10 +315,15 @@
           aria-label="Resource categories"
         >
           <button class="active" data-resource-filter="all">All</button
-          ><button data-resource-filter="launch">Launch</button
-          ><button data-resource-filter="leadership">Leadership</button
-          ><button data-resource-filter="service">Service</button
-          ><button data-resource-filter="operations">Operations</button>
+          ><button data-resource-filter="governance">Governance</button
+          ><button data-resource-filter="launch">New chapters</button
+          ><button data-resource-filter="operations">Operations</button
+          ><button data-resource-filter="programming">Programming</button
+          ><button data-resource-filter="branding">Branding</button
+          ><button data-resource-filter="training">Training</button
+          ><button data-resource-filter="compliance">Compliance</button
+          ><button data-resource-filter="membership">Membership</button
+          ><button data-resource-filter="service">Service</button>
         </div>
         <div class="resource-grid" id="resourceGrid"></div>
       </section>
@@ -333,6 +352,27 @@
             unless an authorized transfer is made and recorded.
           </p>
         </aside>
+      </section>
+
+      <section class="chapter-section onboarding-section" id="onboarding">
+        <div class="section-heading">
+          <p class="eyebrow">SEAMLESS FOUNDER ONBOARDING</p>
+          <h2>One pathway. <em>No guessing.</em></h2>
+          <p>
+            Applicants move through a clear national pipeline: confirmation,
+            screening, group interview, written decision, founder onboarding,
+            executive-board recruitment, training, university recognition,
+            and official launch.
+          </p>
+        </div>
+        <div class="onboarding-grid">
+          <article><b>1</b><h3>Apply once</h3><p>Receive a reference number and confirmation email.</p></article>
+          <article><b>2</b><h3>National screening</h3><p>Nationals reviews mission, leadership, ministry, and community fit.</p></article>
+          <article><b>3</b><h3>Group interview</h3><p>Qualified founders receive the official call invitation and preparation guide.</p></article>
+          <article><b>4</b><h3>Written decision</h3><p>Accepted, additional interview, or declined. No one begins without written approval.</p></article>
+          <article><b>5</b><h3>Founder workspace</h3><p>Approved founders unlock the checklist, files, training, and chapter tracker in P31.</p></article>
+          <article><b>6</b><h3>Official launch</h3><p>After required approvals, Nationals issues the chapter logo, email, and launch support.</p></article>
+        </div>
       </section>
     </main>
 

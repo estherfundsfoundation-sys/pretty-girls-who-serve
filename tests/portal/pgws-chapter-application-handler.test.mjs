@@ -19,6 +19,7 @@ const validApplication = {
   communityNeed: "Students need faith-filled support and belonging.",
   experience: "I have led campus service projects and small groups.",
   acknowledgement: "on",
+  membershipAcknowledgement: "on",
 };
 
 function request(body = validApplication) {
