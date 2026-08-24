@@ -32,6 +32,14 @@ test("the plan is free to read and keeps social features optional", () => {
   assert.match(html, /My dearest, prettiest sister/);
 });
 
+test("the homepage prominently invites visitors into the free plan", () => {
+  const html = read("index.html");
+  assert.match(html, /class="overcome-invitation"/);
+  assert.match(html, /Begin the free 7-day plan/);
+  assert.match(html, /href="\/plans\/pretty-girls-overcome"/);
+  assert.match(html, /Pretty-Girls-Overcome-Instagram-4x5\.png/);
+});
+
 test("private responses are device-encrypted and circle sharing is deliberate", () => {
   const browser = read("overcome.js");
   assert.match(browser, /AES-GCM/);
